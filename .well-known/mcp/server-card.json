@@ -1,6 +1,6 @@
 {
   "name": "flet-mcp-server",
-  "description": "Auto-updating MCP server for Flet documentation and packages",
+  "description": "MCP server for Flet documentation and packages",
   "version": "0.1.0",
   "tools": [
     {
