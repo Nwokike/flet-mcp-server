@@ -10,7 +10,7 @@ class FletPackageFetcher:
         self.client = httpx.AsyncClient(timeout=15.0)
         self.github_headers = {
             "Accept": "application/vnd.github.v3+json",
-            "User-Agent": "Flet-MCP-Server/0.1.0"
+            "User-Agent": "Flet-MCP-Server/0.1.1"
         }
         if token := os.getenv("GITHUB_TOKEN"):
             self.github_headers["Authorization"] = f"Bearer {token}"
@@ -69,7 +69,7 @@ class FletPackageFetcher:
             return False
             
         for req in requires_dist:
-            # Clean up requirement string (e.g. 'flet (>=0.1.0) ; extra == "all"')
+            # Clean up requirement string (e.g. 'flet (>=0.1.1) ; extra == "all"')
             dep_name = req.split(";")[0].split(" ")[0].split(">")[0].split("=")[0].split("<")[0]
             base_name = dep_name.split("[")[0].strip().lower()
             if base_name == "flet":

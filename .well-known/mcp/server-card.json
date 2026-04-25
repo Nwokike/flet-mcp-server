@@ -1,7 +1,7 @@
 {
   "name": "flet-mcp-server",
   "description": "MCP server for Flet documentation and packages",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "tools": [
     {
       "name": "search_flet_docs",

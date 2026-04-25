@@ -14,7 +14,7 @@ class FletDocsFetcher:
         self.client = httpx.AsyncClient(timeout=10.0)
         self.headers = {
             "Accept": "application/vnd.github.v3+json",
-            "User-Agent": "Flet-MCP-Server/0.1.0"
+            "User-Agent": "Flet-MCP-Server/0.1.1"
         }
         # If the user has a GITHUB_TOKEN, use it to vastly expand API limits
         if token := os.getenv("GITHUB_TOKEN"):
