@@ -28,8 +28,12 @@
 ---
 
 Flet MCP Server dynamically fetches and serves official Flet documentation, controls, packages, and ecosystem resources for AI agents and MCP-compatible clients.
+<div align="center">
 
 [![Nwokike/flet-mcp-server MCP server](https://glama.ai/mcp/servers/Nwokike/flet-mcp-server/badges/card.svg)](https://glama.ai/mcp/servers/Nwokike/flet-mcp-server)
+
+</div>
+
 ## Features
 
 *   **GitHub Tree Sync**: Maps documentation in real-time.
