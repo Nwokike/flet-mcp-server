@@ -14,4 +14,4 @@ COPY . .
 RUN uv sync --frozen
 
 # Run the MCP server
-ENTRYPOINT ["uv", "run", "flet-mcp-server"]
+ENTRYPOINT ["uv", "run", "--quiet", "flet-mcp-server"]
