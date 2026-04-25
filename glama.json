@@ -1,0 +1,8 @@
+{
+  "name": "flet-mcp-server",
+  "description": "Model Context Protocol (MCP) server that dynamically fetches and serves official Flet resources to AI agents, including documentation, controls, packages, and ecosystem components.",
+  "instructions": "Install using uv: `uvx flet-mcp-server`. To use with Claude Desktop, add the following to your config:\n\n```json\n{\n  \"mcpServers\": {\n    \"flet-mcp-server\": {\n      \"command\": \"uvx\",\n      \"args\": [\"flet-mcp-server\"]\n    }\n  }\n}\n```",
+  "command": "uvx",
+  "args": ["flet-mcp-server"],
+  "tags": ["flet", "python", "documentation", "mcp", "ai-agents"]
+}
