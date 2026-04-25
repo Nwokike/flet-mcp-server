@@ -45,4 +45,17 @@ Uses the official Python SDK to expose tools via the Model Context Protocol.
 *   **Classification**: Automatically classifies packages as "UI Control" or "Service Integration" based on summary analysis.
 
 ### 4. Caching Layer
-Uses `diskcache` to store responses for 24 hours, ensuring near-instant tool execution for the AI agent.
+*   Uses `diskcache` for persistent storage.
+*   **Cloud Readiness**: The cache directory is configurable via `FLET_MCP_CACHE_DIR` (defaults to `/tmp/flet-mcp-cache`) to ensure compatibility with restricted cloud environments like Smithery.
+
+### 5. Extreme Hardening
+*   **Silence**: All `uv` and Python outputs are silenced or redirected to `stderr` to maintain MCP protocol integrity.
+*   **Reliability**: The server entry point is wrapped in comprehensive error handling to prevent silent crashes.
+*   **Immediate Flush**: Uses unbuffered I/O (`PYTHONUNBUFFERED=1`) to ensure logs are visible in real-time for debugging.
+
+## Roadmap
+
+- [ ] **Dynamic Documentation Switching**: Support fetching docs from specific Flet versions.
+- [ ] **Advanced Package Analysis**: Deep-dive into community package source code for better usage examples.
+- [ ] **Interactive Examples**: Generate and serve working Flet code snippets directly to the AI agent.
+- [ ] **Local Mode**: Support indexing local Flet projects for project-specific AI assistance.
