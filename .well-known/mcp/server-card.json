@@ -1,0 +1,31 @@
+{
+  "name": "flet-mcp-server",
+  "description": "Auto-updating MCP server for Flet documentation and packages",
+  "version": "0.1.0",
+  "tools": [
+    {
+      "name": "search_flet_docs",
+      "description": "Search official Flet documentation"
+    },
+    {
+      "name": "get_flet_doc",
+      "description": "Get raw Markdown for a specific Flet document"
+    },
+    {
+      "name": "list_flet_controls",
+      "description": "List all available Flet UI controls"
+    },
+    {
+      "name": "list_official_packages",
+      "description": "List all official Flet extension packages"
+    },
+    {
+      "name": "search_flet_ecosystem",
+      "description": "Search for verified Flet community packages"
+    },
+    {
+      "name": "get_package_details",
+      "description": "Get version and installation details for a Flet package"
+    }
+  ]
+}
