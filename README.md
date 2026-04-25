@@ -1,12 +1,33 @@
-# Flet MCP Server
+<p align="center">
+  <a href="https://github.com/Nwokike/flet-mcp-server" target="_blank">
+    <img src="https://raw.githubusercontent.com/flet-dev/flet/refs/heads/main/media/logo/flet-logo.svg" height="150" alt="Flet MCP Server logo">
+  </a>
+</p>
 
-[![PyPI Version](https://img.shields.io/pypi/v/flet-mcp-server)](https://pypi.org/project/flet-mcp-server/)
-[![PyPI Downloads](https://static.pepy.tech/badge/flet-mcp-server)](https://pepy.tech/project/flet-mcp-server)
-[![Nwokike/flet-mcp-server MCP server](https://glama.ai/mcp/servers/Nwokike/flet-mcp-server/badges/score.svg)](https://glama.ai/mcp/servers/Nwokike/flet-mcp-server)
-[![CI Status](https://github.com/Nwokike/flet-mcp-server/actions/workflows/ci.yml/badge.svg)](https://github.com/Nwokike/flet-mcp-server/actions/workflows/ci.yml)
-![Python Versions](https://img.shields.io/pypi/pyversions/flet-mcp-server)
+<p align="center">
+  <h1 align="center">Flet MCP Server</h1>
+</p>
 
-Model Context Protocol (MCP) server that dynamically fetches and serves official Flet resources to AI agents, including documentation, controls, packages, and ecosystem components.
+<p align="center">
+  <em>Model Context Protocol server that serves official Flet resources to AI agents.</em>
+</p>
+
+<p align="center">
+    <a href="https://pypi.org/project/flet-mcp-server/" target="_blank">
+        <img src="https://img.shields.io/pypi/v/flet-mcp-server?color=%2334D058&label=pypi" alt="PyPI version" /></a>
+    <a href="https://pepy.tech/project/flet-mcp-server" target="_blank">
+        <img src="https://static.pepy.tech/badge/flet-mcp-server" alt="Downloads" /></a>
+    <a href="https://github.com/Nwokike/flet-mcp-server/actions/workflows/ci.yml" target="_blank">
+        <img src="https://github.com/Nwokike/flet-mcp-server/actions/workflows/ci.yml/badge.svg" alt="CI status" /></a>
+    <a href="https://pypi.org/project/flet-mcp-server/" target="_blank">
+        <img src="https://img.shields.io/badge/python-%3E%3D3.10-%2334D058" alt="Python >= 3.10" /></a>
+    <a href="https://glama.ai/mcp/servers/Nwokike/flet-mcp-server" target="_blank">
+        <img src="https://glama.ai/mcp/servers/Nwokike/flet-mcp-server/badges/score.svg" alt="Nwokike/flet-mcp-server MCP server" /></a>
+</p>
+
+---
+
+Flet MCP Server dynamically fetches and serves official Flet documentation, controls, packages, and ecosystem resources for AI agents and MCP-compatible clients.
 
 [![Nwokike/flet-mcp-server MCP server](https://glama.ai/mcp/servers/Nwokike/flet-mcp-server/badges/card.svg)](https://glama.ai/mcp/servers/Nwokike/flet-mcp-server)
 ## Features
