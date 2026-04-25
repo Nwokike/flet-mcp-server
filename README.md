@@ -1,4 +1,4 @@
-# 🛸 Flet MCP Server
+# Flet MCP Server
 
 [![PyPI Version](https://img.shields.io/pypi/v/flet-mcp-server)](https://pypi.org/project/flet-mcp-server/)
 [![PyPI Downloads](https://static.pepy.tech/badge/flet-mcp-server)](https://pepy.tech/project/flet-mcp-server)
