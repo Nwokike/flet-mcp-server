@@ -10,6 +10,6 @@ deploy:
 commandFunction:
   |-
   (config) => ({
-    command: 'uvx',
-    args: ['--quiet', 'flet-mcp-server']
+    command: 'uv',
+    args: ['run', '--quiet', 'flet-mcp-server']
   })

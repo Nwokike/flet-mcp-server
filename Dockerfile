@@ -1,5 +1,4 @@
-# Use a slim Python image
-FROM python:3.12-slim-bookworm
+FROM python:3.11-slim-bookworm
 
 # Install uv
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
@@ -10,8 +9,8 @@ WORKDIR /app
 # Copy your project files
 COPY . .
 
-# Install dependencies
-RUN uv sync --frozen
+# Install dependencies silently
+RUN uv sync --frozen --no-cache
 
-# Run the MCP server
+# Run the server quietly
 ENTRYPOINT ["uv", "run", "--quiet", "flet-mcp-server"]
