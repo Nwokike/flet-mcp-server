@@ -2,6 +2,33 @@
 
 The Flet MCP Server is built with a focus on speed, reliability, and real-time data.
 
+## Directory Structure
+```text
+flet-mcp-server/
+├── .github/
+│   └── workflows/
+│       ├── ci.yml
+│       └── publish.yml
+├── docs/
+│   ├── ARCHITECTURE.md
+│   └── CONTRIBUTING.md
+├── src/
+│   └── flet_mcp/
+│       ├── services/
+│       │   ├── github_docs.py
+│       │   ├── packages.py
+│       │   └── __init__.py
+│       ├── main.py
+│       ├── server.py
+│       └── __init__.py
+├── tests/
+│   └── test_fetcher.py
+├── LICENSE
+├── README.md
+├── pyproject.toml
+└── uv.lock
+```
+
 ## Components
 
 ### 1. `FastMCP` Interface

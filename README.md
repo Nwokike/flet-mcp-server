@@ -70,6 +70,33 @@ In your IDE's MCP settings, add a new server:
 
 ## Development
 
+### Directory Structure
+```text
+flet-mcp-server/
+├── .github/
+│   └── workflows/
+│       ├── ci.yml
+│       └── publish.yml
+├── docs/
+│   ├── ARCHITECTURE.md
+│   └── CONTRIBUTING.md
+├── src/
+│   └── flet_mcp/
+│       ├── services/
+│       │   ├── github_docs.py
+│       │   ├── packages.py
+│       │   └── __init__.py
+│       ├── main.py
+│       ├── server.py
+│       └── __init__.py
+├── tests/
+│   └── test_fetcher.py
+├── LICENSE
+├── README.md
+├── pyproject.toml
+└── uv.lock
+```
+
 ### Install
 ```bash
 git clone https://github.com/Nwokike/flet-mcp-server.git
