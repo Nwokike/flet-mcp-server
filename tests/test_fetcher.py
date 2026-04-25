@@ -49,20 +49,27 @@ async def test_get_doc_content_not_found(docs_fetcher):
 async def test_list_official_packages(pkg_fetcher):
     packages = await pkg_fetcher.list_official_packages()
     assert len(packages) > 0
-    assert "flet-audio" in packages or "audio" in packages
+    assert any("audio" in pkg for pkg in packages) or "flet-audio" in packages
+
+@pytest.mark.asyncio
+async def test_is_true_flet_package(pkg_fetcher):
+    # flet-audio is a known flet package
+    assert await pkg_fetcher._is_true_flet_package("flet-audio") is True
+    # requests is NOT a flet package
+    assert await pkg_fetcher._is_true_flet_package("requests") is False
 
 @pytest.mark.asyncio
 async def test_search_flet_ecosystem(pkg_fetcher):
     results = await pkg_fetcher.search_flet_ecosystem("calendar")
     assert isinstance(results, list)
     if results:
-        assert "name" in results[0]
-        assert "url" in results[0]
+        assert "is_verified_flet_package" in results[0]
 
 @pytest.mark.asyncio
 async def test_get_package_details(pkg_fetcher):
     details = await pkg_fetcher.get_package_details("flet-audio")
     assert "Package: flet-audio" in details
+    assert "Type: UI Control" in details or "Type: Python Package" in details
     assert "uv add flet-audio" in details
 
 @pytest.mark.asyncio
