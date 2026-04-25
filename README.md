@@ -32,10 +32,24 @@ Search for verified community Flet components.
 ### 6. `get_package_details(package_name)`
 Fetch version and installation info from PyPI.
 
-## Getting Started
+## Client Configuration Examples
+
+### 🌌 Antigravity / Cascade
+Add this to your `mcp_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "flet-mcp-server": {
+      "command": "uvx",
+      "args": ["flet-mcp-server"]
+    }
+  }
+}
+```
 
 ### 🤖 Claude Desktop
-Add this to `claude_desktop_config.json`:
+Add this to your `claude_desktop_config.json`:
 
 ```json
 {
@@ -49,7 +63,9 @@ Add this to `claude_desktop_config.json`:
 ```
 
 ### 💻 Cursor / Windsurf
-Add a new Command server:
+In your IDE's MCP settings, add a new server:
+- **Name**: Flet MCP
+- **Type**: Command
 - **Command**: `uvx flet-mcp-server`
 
 ## Development
