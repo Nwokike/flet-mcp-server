@@ -8,10 +8,12 @@ logging.basicConfig(level=logging.INFO, stream=sys.stderr)
 def run_server():
     """
     Entry point for the uv script execution.
-    Runs the MCP server over standard input/output (stdio), 
-    which is the communication protocol required by desktop AI agents.
     """
-    mcp.run(transport='stdio')
+    try:
+        mcp.run(transport='stdio')
+    except Exception as e:
+        logging.error(f"Server error: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     run_server()

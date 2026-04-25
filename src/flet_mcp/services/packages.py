@@ -2,7 +2,7 @@ import os
 import httpx
 import diskcache
 
-CACHE_DIR = os.path.expanduser("~/.cache/flet-mcp")
+CACHE_DIR = os.environ.get("FLET_MCP_CACHE_DIR", "/tmp/flet-mcp-cache")
 cache = diskcache.Cache(CACHE_DIR)
 
 class FletPackageFetcher:

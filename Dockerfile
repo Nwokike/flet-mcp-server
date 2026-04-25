@@ -9,6 +9,9 @@ WORKDIR /app
 # Copy your project files
 COPY . .
 
+# Ensure Python output is unbuffered to prevent logging delays
+ENV PYTHONUNBUFFERED=1
+
 # Install dependencies silently
 RUN uv sync --frozen --no-cache
 

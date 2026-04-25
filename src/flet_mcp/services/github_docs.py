@@ -2,9 +2,9 @@ import os
 import httpx
 import diskcache
 
-# Set up a persistent local cache in the user's home directory
-# This prevents us from getting rate-limited by GitHub when the AI asks multiple questions
-CACHE_DIR = os.path.expanduser("~/.cache/flet-mcp")
+# Set up a persistent local cache
+# In cloud/docker environments, /tmp is usually writable
+CACHE_DIR = os.environ.get("FLET_MCP_CACHE_DIR", "/tmp/flet-mcp-cache")
 cache = diskcache.Cache(CACHE_DIR)
 
 class FletDocsFetcher:
