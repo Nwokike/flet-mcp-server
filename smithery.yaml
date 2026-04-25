@@ -1,6 +1,11 @@
-version: "1"
-
-# The command to run the server
-command:
-  - uvx
-  - flet-mcp-server
+startCommand:
+  type: stdio
+configSchema:
+  type: object
+  properties: {}
+commandFunction:
+  |-
+  (config) => ({
+    command: 'uvx',
+    args: ['flet-mcp-server']
+  })
