@@ -2,16 +2,13 @@
 
 [![PyPI Version](https://img.shields.io/pypi/v/flet-mcp-server)](https://pypi.org/project/flet-mcp-server/)
 [![PyPI Downloads](https://static.pepy.tech/badge/flet-mcp-server)](https://pepy.tech/project/flet-mcp-server)
-[![Nwokike/flet-mcp-server MCP server](https://glama.ai/mcp/servers/Nwokike/flet-mcp-server/badges/card.svg)](https://glama.ai/mcp/servers/Nwokike/flet-mcp-server)
 [![Nwokike/flet-mcp-server MCP server](https://glama.ai/mcp/servers/Nwokike/flet-mcp-server/badges/score.svg)](https://glama.ai/mcp/servers/Nwokike/flet-mcp-server)
 [![CI Status](https://github.com/Nwokike/flet-mcp-server/actions/workflows/ci.yml/badge.svg)](https://github.com/Nwokike/flet-mcp-server/actions/workflows/ci.yml)
 ![Python Versions](https://img.shields.io/pypi/pyversions/flet-mcp-server)
 
-> **The De Facto MCP Server for Flet Development.**  
-> Effortlessly build cross-platform apps with real-time access to the entire Flet ecosystem.
+Model Context Protocol (MCP) server that dynamically fetches and serves official Flet resources to AI agents, including documentation, controls, packages, and ecosystem components.
 
-An auto-updating Model Context Protocol (MCP) server that dynamically fetches, caches, and serves official Flet documentation and verified community packages directly from GitHub and PyPI.
-
+[![Nwokike/flet-mcp-server MCP server](https://glama.ai/mcp/servers/Nwokike/flet-mcp-server/badges/card.svg)](https://glama.ai/mcp/servers/Nwokike/flet-mcp-server)
 ## Features
 
 *   **GitHub Tree Sync**: Maps documentation in real-time.
