@@ -1,11 +1,16 @@
+version: "1"
 startCommand:
   type: stdio
 configSchema:
   type: object
   properties: {}
+# This tells Smithery to build your Dockerfile instead of guessing the environment
+deploy:
+  docker:
+    dockerfile: Dockerfile
 commandFunction:
   |-
   (config) => ({
-    command: 'uvx',
-    args: ['flet-mcp-server']
+    command: 'uv',
+    args: ['run', 'flet-mcp-server']
   })
