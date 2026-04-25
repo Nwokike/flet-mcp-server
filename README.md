@@ -1,7 +1,9 @@
 # Flet MCP Server
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-[![Python: 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
+[![PyPI Version](https://img.shields.io/pypi/v/flet-mcp-server)](https://pypi.org/project/flet-mcp-server/)
+[![PyPI Downloads](https://static.pepy.tech/badge/flet-mcp-server)](https://pepy.tech/project/flet-mcp-server)
+![Python Versions](https://img.shields.io/pypi/pyversions/flet-mcp-server)
+![License](https://img.shields.io/github/license/Nwokike/flet-mcp-server)
 
 An auto-updating Model Context Protocol (MCP) server that dynamically fetches, caches, and serves the official Flet documentation and ecosystem packages directly from GitHub and PyPI.
 
