@@ -2,6 +2,7 @@
 
 [![PyPI Version](https://img.shields.io/pypi/v/flet-mcp-server)](https://pypi.org/project/flet-mcp-server/)
 [![PyPI Downloads](https://static.pepy.tech/badge/flet-mcp-server)](https://pepy.tech/project/flet-mcp-server)
+[![Smithery Badge](https://smithery.ai/badge/nwokikeonyeka/flet-mcp-server)](https://smithery.ai/servers/nwokikeonyeka/flet-mcp-server)
 ![Python Versions](https://img.shields.io/pypi/pyversions/flet-mcp-server)
 ![License](https://img.shields.io/github/license/Nwokike/flet-mcp-server)
 
