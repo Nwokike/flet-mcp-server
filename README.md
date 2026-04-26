@@ -4,25 +4,28 @@
   </a>
 </p>
 
+<h1 align="center">Flet MCP Server</h1>
+
 <p align="center">
-  <h1 align="center">Flet MCP Server</h1>
+  <em>Model Context Protocol that serves official Flet resources to AI agents.</em>
 </p>
 
 <p align="center">
-  <em>Model Context Protocol server that serves official Flet resources to AI agents.</em>
-</p>
-
-<p align="center">
-    <a href="https://pypi.org/project/flet-mcp-server/" target="_blank">
-        <img src="https://img.shields.io/pypi/v/flet-mcp-server?color=%2334D058&label=pypi" alt="PyPI version" /></a>
-    <a href="https://pepy.tech/project/flet-mcp-server" target="_blank">
-        <img src="https://static.pepy.tech/badge/flet-mcp-server" alt="Downloads" /></a>
-    <a href="https://github.com/Nwokike/flet-mcp-server/actions/workflows/ci.yml" target="_blank">
-        <img src="https://github.com/Nwokike/flet-mcp-server/actions/workflows/ci.yml/badge.svg" alt="CI status" /></a>
-    <a href="https://pypi.org/project/flet-mcp-server/" target="_blank">
-        <img src="https://img.shields.io/badge/python-%3E%3D3.10-%2334D058" alt="Python >= 3.10" /></a>
-    <a href="https://glama.ai/mcp/servers/Nwokike/flet-mcp-server" target="_blank">
-        <img src="https://glama.ai/mcp/servers/Nwokike/flet-mcp-server/badges/score.svg" alt="Nwokike/flet-mcp-server MCP server" /></a>
+  <a href="https://pypi.org/project/flet-mcp-server/" target="_blank">
+    <img src="https://img.shields.io/pypi/v/flet-mcp-server?color=%2334D058&label=PyPI" alt="PyPI version" />
+  </a>
+  <a href="https://pepy.tech/projects/flet-mcp-server" target="_blank">
+    <img src="https://static.pepy.tech/personalized-badge/flet-mcp-server?period=total&units=INTERNATIONAL_SYSTEM&left_color=BLACK&right_color=GREEN&left_text=Users" alt="Total users" />
+  </a>
+  <a href="https://github.com/Nwokike/flet-mcp-server/actions/workflows/ci.yml" target="_blank">
+    <img src="https://github.com/Nwokike/flet-mcp-server/actions/workflows/ci.yml/badge.svg" alt="CI status" />
+  </a>
+  <a href="https://pypi.org/project/flet-mcp-server/" target="_blank">
+    <img src="https://img.shields.io/badge/python-%3E%3D3.10-%2334D058" alt="Python >= 3.10" />
+  </a>
+  <a href="https://glama.ai/mcp/servers/Nwokike/flet-mcp-server" target="_blank">
+    <img src="https://glama.ai/mcp/servers/Nwokike/flet-mcp-server/badges/score.svg" alt="MCP server score" />
+  </a>
 </p>
 
 ---
