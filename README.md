@@ -66,6 +66,21 @@ Fetch version and installation info from PyPI.
 
 ## Client Configuration Examples
 
+### 🌌 VSCode
+Add this to your `.vscode/mcp.json`:
+
+```json
+{
+  "servers": {
+    "flet-mcp-server": {
+      "command": "uvx",
+      "args": ["flet-mcp-server"]
+    }
+  }
+}
+```
+
+
 ### 🌌 Antigravity / Cascade
 Add this to your `mcp_config.json`:
 
