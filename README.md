@@ -69,7 +69,7 @@ Fetch version, type classification, and installation info from PyPI.
 
 ## Client Configuration Examples
 
-### 🌌 VSCode
+### VSCode
 Add this to your `.vscode/mcp.json`:
 
 ```json
@@ -81,9 +81,11 @@ Add this to your `.vscode/mcp.json`:
     }
   }
 }
+
 ```
 
-### 🌌 Antigravity / Cascade
+### Antigravity
+
 Add this to your `mcp_config.json`:
 
 ```json
@@ -95,9 +97,11 @@ Add this to your `mcp_config.json`:
     }
   }
 }
+
 ```
 
-### 🤖 Claude Desktop
+### Claude Desktop
+
 Add this to your `claude_desktop_config.json`:
 
 ```json
@@ -109,20 +113,49 @@ Add this to your `claude_desktop_config.json`:
     }
   }
 }
+
 ```
 
-### 💻 Cursor / Windsurf
-In your IDE's MCP settings, add a new server:
-- **Name**: Flet MCP
-- **Type**: Command
-- **Command**: `uvx flet-mcp-server`
+### Cursor / Windsurf
 
-### 💻 OpenCode
+In your IDE's MCP settings, add a new server:
+
+* **Name**: Flet MCP
+* **Type**: Command
+* **Command**: `uvx flet-mcp-server`
+
+### Zed
+
+Add this to your `settings.json` file inside the `context_servers` object:
+
+```jsonc
+{
+  "context_servers": {
+    /// Configure an MCP server that runs locally via stdin/stdout
+    ///
+    /// The name of your MCP server
+    "flet-mcp-server": {
+      /// The command which runs the MCP server
+      "command": "uvx",
+      /// The arguments to pass to the MCP server
+      "args": [
+        "flet-mcp-server"
+      ],
+      /// The environment variables to set
+      "env": {}
+    }
+  }
+}
+
+```
+
+### OpenCode
+
 Add this to your `~/.opencode/opencode.json` or project-level `.opencode/opencode.json`:
 
 ```json
 {
-  "$schema": "https://opencode.ai/config.json",
+  "$schema": "[https://opencode.ai/config.json](https://opencode.ai/config.json)",
   "mcp": {
     "flet-mcp": {
       "type": "local",
@@ -131,13 +164,14 @@ Add this to your `~/.opencode/opencode.json` or project-level `.opencode/opencod
     }
   }
 }
+
 ```
 
 For authenticated GitHub API access (higher rate limits), set `GITHUB_TOKEN` in your environment:
 
 ```json
 {
-  "$schema": "https://opencode.ai/config.json",
+  "$schema": "[https://opencode.ai/config.json](https://opencode.ai/config.json)",
   "mcp": {
     "flet-mcp": {
       "type": "local",
@@ -149,20 +183,13 @@ For authenticated GitHub API access (higher rate limits), set `GITHUB_TOKEN` in 
     }
   }
 }
+
 ```
-
-## Environment Variables
-
-| Variable | Default | Description |
-|---|---|---|
-| `FLET_MCP_CACHE_DIR` | `/tmp/flet-mcp-cache` | Directory for persistent cache storage |
-| `GITHUB_TOKEN` | *(none)* | GitHub personal access token for higher API rate limits |
-| `FLET_REPO` | `flet-dev/flet` | GitHub repository to fetch docs from |
-| `FLET_BRANCH` | `main` | Branch or tag to fetch docs from |
 
 ## Development
 
 ### Directory Structure
+
 ```text
 flet-mcp-server/
 ├── .github/
@@ -189,23 +216,30 @@ flet-mcp-server/
 ├── README.md
 ├── pyproject.toml
 └── uv.lock
+
 ```
 
 ### Install
+
 ```bash
 git clone https://github.com/Nwokike/flet-mcp-server.git
 cd flet-mcp-server
 uv sync
+
 ```
 
 ### Test
+
 ```bash
 uv run pytest
+
 ```
 
 ### Lint
+
 ```bash
 uv run ruff check .
+
 ```
 
 ## Changelog
