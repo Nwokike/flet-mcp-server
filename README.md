@@ -151,7 +151,7 @@ Add this to your `settings.json` file inside the `context_servers` object:
 
 ### OpenCode
 
-Add this to your `~/.opencode/opencode.json` or project-level `.opencode/opencode.json`:
+Add this to your `~/.config/opencode/opencode.json` or project-level `.opencode/opencode.json`:
 
 ```json
 {
