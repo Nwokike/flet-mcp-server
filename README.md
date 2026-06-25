@@ -130,23 +130,12 @@ Add this to your `settings.json` file inside the `context_servers` object:
 
 ```jsonc
 {
-  "context_servers": {
-    /// Configure an MCP server that runs locally via stdin/stdout
-    ///
-    /// The name of your MCP server
-    "flet-mcp-server": {
-      /// The command which runs the MCP server
-      "command": "uvx",
-      /// The arguments to pass to the MCP server
-      "args": [
-        "flet-mcp-server"
-      ],
-      /// The environment variables to set
-      "env": {}
-    }
+  "flet": {
+    "command": "uvx",
+    "args": ["flet-mcp-server"],
+    "env": {}
   }
 }
-
 ```
 
 ### OpenCode
