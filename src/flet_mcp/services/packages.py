@@ -1,16 +1,15 @@
-import os
 import asyncio
+from urllib.parse import quote
+
 import httpx
-import diskcache
 
+from flet_mcp import config
 from flet_mcp.http import SharedClient
-from flet_mcp.exceptions import PackageNotFoundError
+from flet_mcp.exceptions import FetchError, PackageNotFoundError
 
-CACHE_DIR = os.environ.get("FLET_MCP_CACHE_DIR", "/tmp/flet-mcp-cache")
-cache = diskcache.Cache(CACHE_DIR)
+cache = config.new_cache()
 
-FLET_REPO = os.environ.get("FLET_REPO", "flet-dev/flet")
-FLET_BRANCH = os.environ.get("FLET_BRANCH", "main")
+PACKAGES_SUBTREE = "sdk/python/packages"
 
 # Max concurrent PyPI checks to avoid rate limiting
 MAX_CONCURRENT_VERIFICATIONS = 3
@@ -38,42 +37,49 @@ class FletPackageFetcher:
         return self._client
 
     async def _fetch_json(self, url: str, headers: dict | None = None) -> dict | None:
-        """Fetch and cache JSON responses (24-hour TTL)."""
+        """Fetch and cache JSON responses (24-hour TTL).
+
+        Returns None only for a genuine 404 (callers treat it as "not found");
+        network failures and error statuses raise FetchError.
+        """
         if url in cache:
             return cache[url]
 
         try:
             response = await self.client.get(url, headers=headers or self._github_headers)
-        except httpx.RequestError:
-            return None
+        except httpx.RequestError as exc:
+            raise FetchError(url, detail=str(exc)) from exc
 
         if response.status_code == 200:
             data = response.json()
-            cache.set(url, data, expire=86400)
+            tag = "github" if "github.com" in url else "pypi"
+            cache.set(url, data, expire=86400, tag=tag)
             return data
-        return None
+        if response.status_code == 404:
+            return None
+        raise FetchError(url, status_code=response.status_code, detail=response.text[:200])
 
     async def list_official_packages(self) -> list[str]:
-        """Scrapes the Flet monorepo to find all official extensions."""
-        url = f"https://api.github.com/repos/{FLET_REPO}/git/trees/{FLET_BRANCH}?recursive=1"
-        data = await self._fetch_json(url, headers=self._github_headers)
+        """Lists official Flet packages from the monorepo's packages directory."""
+        api = f"https://api.github.com/repos/{config.FLET_REPO}/git/trees"
 
-        if not data or "tree" not in data:
-            return _FALLBACK_OFFICIAL
+        # The packages dir's direct children are the packages — no recursion needed.
+        subtree_ref = quote(f"{config.FLET_BRANCH}:{PACKAGES_SUBTREE}", safe="")
+        try:
+            data = await self._fetch_json(f"{api}/{subtree_ref}")
+        except FetchError:
+            data = None
 
-        packages = set()
-        prefix = "sdk/python/packages/"
-        for item in data["tree"]:
-            path = item["path"]
-            if path.startswith(prefix) and item["type"] == "tree":
-                parts = path.split("/")
-                if len(parts) == 4:
-                    packages.add(parts[3])
+        if isinstance(data, dict) and data.get("tree"):
+            packages = {
+                item["path"] for item in data["tree"]
+                if item.get("type") == "tree"
+            }
+            if packages:
+                # Normalise to PyPI-style distribution names and include the core.
+                return sorted({f"flet-{p}" if not p.startswith("flet") else p for p in packages})
 
-        # Always include the core "flet" package
-        packages.add("flet")
-
-        return sorted(packages) if packages else _FALLBACK_OFFICIAL
+        return _FALLBACK_OFFICIAL
 
     async def _is_true_flet_package(self, package_name: str) -> bool:
         """Verifies PyPI metadata to ensure the package actually depends on flet."""

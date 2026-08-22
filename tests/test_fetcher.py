@@ -5,6 +5,7 @@ import diskcache
 import tempfile
 import os
 
+from flet_mcp import config
 from flet_mcp.services import github_docs, packages
 from flet_mcp.services.github_docs import FletDocsFetcher
 from flet_mcp.services.packages import FletPackageFetcher
@@ -24,8 +25,8 @@ def isolated_cache():
             os.environ.pop("FLET_MCP_CACHE_DIR", None)
         else:
             os.environ["FLET_MCP_CACHE_DIR"] = old_cache_dir
-        github_docs.cache = diskcache.Cache(os.environ.get("FLET_MCP_CACHE_DIR", "/tmp/flet-mcp-cache"))
-        packages.cache = diskcache.Cache(os.environ.get("FLET_MCP_CACHE_DIR", "/tmp/flet-mcp-cache"))
+        github_docs.cache = diskcache.Cache(config.cache_dir())
+        packages.cache = diskcache.Cache(config.cache_dir())
 
 
 # --- Fixtures ---
@@ -57,32 +58,40 @@ async def pkg_fetcher():
     await mock_client.aclose()
 
 
-# --- GitHub Tree Response Fixture ---
+# --- GitHub Tree Response Fixtures ---
+# The docs fetcher now requests the website/docs subtree directly
+# (`<branch>:website/docs`), so GitHub returns paths RELATIVE to that subtree.
 
 MOCK_TREE_DATA = {
     "tree": [
-        {"path": "website/docs/controls/dropdown/index.md", "type": "blob"},
-        {"path": "website/docs/controls/dropdownm2.md", "type": "blob"},
-        {"path": "website/docs/controls/dropdownoption.md", "type": "blob"},
-        {"path": "website/docs/controls/textfield.md", "type": "blob"},
-        {"path": "website/docs/controls/filledbutton.md", "type": "blob"},
-        {"path": "website/docs/controls/container.md", "type": "blob"},
-        {"path": "website/docs/controls/row.md", "type": "blob"},
-        {"path": "website/docs/controls/column.md", "type": "blob"},
-        {"path": "website/docs/controls/stack.md", "type": "blob"},
-        {"path": "website/docs/controls/navigationbar/index.md", "type": "blob"},
-        {"path": "website/docs/controls/alertdialog.md", "type": "blob"},
-        {"path": "website/docs/controls/icon.md", "type": "blob"},
-        {"path": "website/docs/controls/card.md", "type": "blob"},
-        {"path": "website/docs/controls/listtile.md", "type": "blob"},
-        {"path": "website/docs/cookbook/animations.md", "type": "blob"},
-        {"path": "website/docs/types/animationcurve.md", "type": "blob"},
-        {"path": "website/docs/types/buttonstyle.md", "type": "blob"},
-        {"path": "README.md", "type": "blob"},
-        {"path": "sdk/python/packages/flet-audio/pyproject.toml", "type": "blob"},
-        {"path": "sdk/python/packages/flet-audio", "type": "tree"},
-        {"path": "sdk/python/packages/flet-video", "type": "tree"},
-        {"path": "sdk/python/packages/flet-charts", "type": "tree"},
+        {"path": "controls/dropdown/index.md", "type": "blob"},
+        {"path": "controls/dropdownm2.md", "type": "blob"},
+        {"path": "controls/dropdownoption.md", "type": "blob"},
+        {"path": "controls/textfield.md", "type": "blob"},
+        {"path": "controls/filledbutton.md", "type": "blob"},
+        {"path": "controls/container.md", "type": "blob"},
+        {"path": "controls/row.md", "type": "blob"},
+        {"path": "controls/column.md", "type": "blob"},
+        {"path": "controls/stack.md", "type": "blob"},
+        {"path": "controls/navigationbar/index.md", "type": "blob"},
+        {"path": "controls/alertdialog.md", "type": "blob"},
+        {"path": "controls/icon.md", "type": "blob"},
+        {"path": "controls/card.md", "type": "blob"},
+        {"path": "controls/listtile.md", "type": "blob"},
+        {"path": "cookbook/animations.md", "type": "blob"},
+        {"path": "types/animationcurve.md", "type": "blob"},
+        {"path": "types/buttonstyle.md", "type": "blob"},
+    ]
+}
+
+# Direct children of sdk/python/packages in the monorepo (non-recursive subtree).
+
+MOCK_PACKAGES_TREE = {
+    "tree": [
+        {"path": "flet-audio", "type": "tree"},
+        {"path": "flet-video", "type": "tree"},
+        {"path": "flet-charts", "type": "tree"},
+        {"path": "ci", "type": "tree"},
     ]
 }
 
@@ -195,10 +204,7 @@ async def test_get_doc_content(docs_fetcher, mock_response):
 @pytest.mark.asyncio
 async def test_get_doc_content_not_found(docs_fetcher, mock_response):
     docs_fetcher.client.get = AsyncMock(
-        side_effect=[
-            mock_response(json_data=MOCK_TREE_DATA),
-            mock_response(status_code=404),
-        ]
+        return_value=mock_response(status_code=404)
     )
 
     with pytest.raises(DocNotFoundError) as exc_info:
@@ -228,7 +234,7 @@ MOCK_PYPI_REQUESTS = {
 
 @pytest.mark.asyncio
 async def test_list_official_packages(pkg_fetcher, mock_response):
-    pkg_fetcher.client.get = AsyncMock(return_value=mock_response(json_data=MOCK_TREE_DATA))
+    pkg_fetcher.client.get = AsyncMock(return_value=mock_response(json_data=MOCK_PACKAGES_TREE))
 
     packages = await pkg_fetcher.list_official_packages()
 

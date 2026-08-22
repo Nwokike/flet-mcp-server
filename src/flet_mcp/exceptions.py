@@ -39,3 +39,18 @@ class TreeFetchError(FetchError):
     def __init__(self, repo: str, detail: str | None = None):
         url = f"https://api.github.com/repos/{repo}/git/trees"
         super().__init__(url, detail=detail)
+
+
+class RateLimitedError(FetchError):
+    """Raised when GitHub rejects a request for rate limiting (403/429)."""
+
+    def __init__(self, url: str, detail: str | None = None):
+        super().__init__(url, status_code=None, detail=detail or "rate limited")
+
+
+class SourceError(FletMCPError):
+    """Raised when the installed flet source cannot be located or read."""
+
+
+class SymbolNotFoundError(SourceError):
+    """Raised when a class/function name is absent from a flet module."""

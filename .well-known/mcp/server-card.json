@@ -1,8 +1,40 @@
 {
   "name": "flet-mcp-server",
-  "description": "MCP server for Flet documentation and packages",
-  "version": "0.1.1",
+  "description": "MCP server that makes the installed Flet source code the source of truth for AI agents",
+  "version": "1.0.0",
   "tools": [
+    {
+      "name": "verify_flet_code",
+      "description": "Verify Flet code against the installed flet: static analysis plus sandboxed execution firing flet's own validators, with line-numbered diagnostics"
+    },
+    {
+      "name": "inspect_flet_control",
+      "description": "Exact, current API for any Flet control from the installed source: properties, types, defaults, events, deprecations, and full class source"
+    },
+    {
+      "name": "get_flet_version",
+      "description": "Which flet version the source tools read, and from where"
+    },
+    {
+      "name": "search_flet_source",
+      "description": "Ranked search across the installed flet source code"
+    },
+    {
+      "name": "read_flet_source",
+      "description": "Read the installed source of a flet module or a single class/function"
+    },
+    {
+      "name": "list_flet_api",
+      "description": "Every public name in the installed flet, grouped by category"
+    },
+    {
+      "name": "search_flet_icons",
+      "description": "Search valid ft.Icons / ft.CupertinoIcons names"
+    },
+    {
+      "name": "search_flet_colors",
+      "description": "Search valid ft.Colors constants including shades"
+    },
     {
       "name": "search_flet_docs",
       "description": "Search official Flet documentation"

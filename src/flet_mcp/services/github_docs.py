@@ -1,16 +1,18 @@
-import os
 import difflib
-import httpx
-import diskcache
+import logging
+from urllib.parse import quote
 
+import httpx
+
+from flet_mcp import config
 from flet_mcp.http import SharedClient
 from flet_mcp.exceptions import FetchError, DocNotFoundError
 
-CACHE_DIR = os.environ.get("FLET_MCP_CACHE_DIR", "/tmp/flet-mcp-cache")
-cache = diskcache.Cache(CACHE_DIR)
+logger = logging.getLogger(__name__)
 
-FLET_REPO = os.environ.get("FLET_REPO", "flet-dev/flet")
-FLET_BRANCH = os.environ.get("FLET_BRANCH", "main")
+cache = config.new_cache()
+
+DOCS_SUBTREE = "website/docs"
 
 # Keyword alias index for smarter search
 # Maps common search terms to doc path fragments
@@ -109,47 +111,66 @@ class FletDocsFetcher:
 
         if response.status_code == 200:
             data = response.json()
-            cache.set(url, data, expire=86400)
+            cache.set(url, data, expire=86400, tag="github")
             return data
         if response.status_code == 404:
             return None
         raise FetchError(url, status_code=response.status_code, detail=response.text[:200])
 
     async def _fetch_text(self, url: str) -> str | None:
-        """Helper to fetch and cache raw Markdown text (24-hour TTL)."""
+        """Helper to fetch and cache raw Markdown text (24-hour TTL), authenticated."""
         if url in cache:
             return cache[url]
 
         try:
-            response = await self.client.get(url)
+            response = await self.client.get(url, headers=SharedClient.auth_headers())
         except httpx.RequestError as exc:
             raise FetchError(url, detail=str(exc)) from exc
 
         if response.status_code == 200:
             text = response.text
-            cache.set(url, text, expire=86400)
+            cache.set(url, text, expire=86400, tag="github")
             return text
         if response.status_code == 404:
             return None
         raise FetchError(url, status_code=response.status_code, detail=response.text[:200])
 
+    async def _get_tree_paths(self, subtree: str) -> list[str]:
+        """Full repo paths under `subtree`.
+
+        Fetches the subtree directly (`<branch>:<path>`) which is small and immune
+        to GitHub's 100k-entry truncation of repo-wide recursive trees; falls back
+        to the whole recursive tree if the subtree ref is unavailable.
+        """
+        api = f"https://api.github.com/repos/{config.FLET_REPO}/git/trees"
+
+        subtree_ref = quote(f"{config.FLET_BRANCH}:{subtree}", safe="")
+        data = await self._fetch_json(f"{api}/{subtree_ref}?recursive=1")
+        if isinstance(data, dict) and data.get("tree"):
+            if data.get("truncated"):
+                logger.warning("GitHub tree for %s was truncated; results may be partial", subtree)
+            return [f"{subtree}/{item['path']}" for item in data["tree"]]
+
+        logger.warning("Subtree fetch for %s failed; falling back to full tree", subtree)
+        data = await self._fetch_json(f"{api}/{config.FLET_BRANCH}?recursive=1")
+        if not isinstance(data, dict) or "tree" not in data:
+            return []
+        if data.get("truncated"):
+            logger.warning("Full GitHub tree was truncated; results may be partial")
+        return [
+            item["path"] for item in data["tree"]
+            if item["path"].startswith(f"{subtree}/")
+        ]
+
     async def get_docs_tree(self) -> list[str]:
         """Gets a flat list of all Markdown documentation paths in the Flet repo."""
-        repo_api_url = f"https://api.github.com/repos/{FLET_REPO}/git/trees/{FLET_BRANCH}?recursive=1"
-        data = await self._fetch_json(repo_api_url)
-
-        if not data or "tree" not in data:
-            return []
-
-        doc_paths = [
-            item["path"] for item in data["tree"]
-            if item["path"].startswith("website/docs/") and item["path"].endswith(".md")
-        ]
-        return doc_paths
+        return [p for p in await self._get_tree_paths(DOCS_SUBTREE) if p.endswith(".md")]
 
     async def get_doc_content(self, file_path: str) -> str:
         """Fetches the raw Markdown content for a specific Flet doc file."""
-        raw_url = f"https://raw.githubusercontent.com/{FLET_REPO}/{FLET_BRANCH}/{file_path}"
+        raw_url = (
+            f"https://raw.githubusercontent.com/{config.FLET_REPO}/{config.FLET_BRANCH}/{file_path}"
+        )
         content = await self._fetch_text(raw_url)
 
         if content:
@@ -180,8 +201,8 @@ class FletDocsFetcher:
         # Step 3: Fuzzy matching for typos / near-misses
         control_names = set()
         for path in all_docs:
-            if "website/docs/controls/" in path:
-                parts = path.split("website/docs/controls/")
+            if f"{DOCS_SUBTREE}/controls/" in path:
+                parts = path.split(f"{DOCS_SUBTREE}/controls/")
                 if len(parts) > 1:
                     name = parts[1].split("/")[0].replace(".md", "")
                     control_names.add(name)
@@ -208,11 +229,11 @@ class FletDocsFetcher:
         return result
 
     async def list_flet_controls(self) -> list[str]:
-        """Returns a list of all available Flet UI controls."""
+        """Returns a list of all available Flet UI controls (from docs pages)."""
         all_docs = await self.get_docs_tree()
 
         controls = set()
-        controls_prefix = "website/docs/controls/"
+        controls_prefix = f"{DOCS_SUBTREE}/controls/"
 
         for path in all_docs:
             if not path.startswith(controls_prefix):

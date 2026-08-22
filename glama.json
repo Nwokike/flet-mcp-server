@@ -4,8 +4,8 @@
     "Nwokike"
   ],
   "name": "flet-mcp-server",
-  "description": "Model Context Protocol (MCP) server that dynamically fetches and serves official Flet resources to AI agents, including documentation, controls, packages, and ecosystem components.",
-  "instructions": "Install using uv: `uvx flet-mcp-server`. To use with Claude Desktop, add the following to your config:\n\n```json\n{\n  \"mcpServers\": {\n    \"flet-mcp-server\": {\n      \"command\": \"uvx\",\n      \"args\": [\"flet-mcp-server\"]\n    }\n  }\n}\n```",
+  "description": "Model Context Protocol (MCP) server that makes the installed Flet source code the source of truth for AI agents — and verifies AI-written Flet code against it: inspect any control's exact current API, search icons/colors/source, read official docs, discover ecosystem packages, and run verify_flet_code before delivery.",
+  "instructions": "Install using uv: `uvx flet-mcp-server`. To use with Claude Desktop, add the following to your config:\n\n```json\n{\n  \"mcpServers\": {\n    \"flet-mcp-server\": {\n      \"command\": \"uvx\",\n      \"args\": [\"flet-mcp-server\"]\n    }\n  }\n}\n```\n\nTo verify against your project's exact flet version, either pin it (`uvx --with flet==0.85.0 flet-mcp-server`) or point the server at your project venv with the FLET_MCP_VENV environment variable.",
   "command": "uvx",
   "args": [
     "flet-mcp-server"
@@ -14,6 +14,8 @@
     "flet",
     "python",
     "documentation",
+    "source-code",
+    "introspection",
     "mcp",
     "ai-agents"
   ]
