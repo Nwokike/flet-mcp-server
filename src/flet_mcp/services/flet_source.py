@@ -332,7 +332,7 @@ def search_icons(query: str, icon_set: str = "material", max_results: int = 50) 
     exact = [n for n in data if n == q]
     starts = [n for n in data if n.startswith(q) and n != q]
     contains = [n for n in data if q in n and not n.startswith(q)]
-    fuzzy = difflib.get_close_matches(q, [n for n in data if q not in n], n=max_results, cutoff=0.6)
+    fuzzy = difflib.get_close_matches(q, [n for n in data if q not in n], n=max_results, cutoff=0.7)
     ranked = exact + starts + sorted(contains) + fuzzy
 
     seen: set[str] = set()
@@ -361,7 +361,7 @@ def search_colors(query: str, max_results: int = 50) -> list[str]:
         starts = [n for n in items if n.startswith(q) and n != q]
         contains = sorted(n for n in items if q in n and not n.startswith(q))
         fuzzy = difflib.get_close_matches(
-            q, [n for n in items if q not in n], n=max_results, cutoff=0.6
+            q, [n for n in items if q not in n], n=max_results, cutoff=0.7
         )
         ranked, seen = [], set()
         for n in exact + starts + contains + fuzzy:
@@ -397,7 +397,16 @@ def _default_repr(f: Any) -> str:
     if f.default is not MISSING:
         return repr(f.default)
     if f.default_factory is not MISSING:  # type: ignore[misc]
-        return f"<{getattr(f.default_factory, '__name__', 'factory')}()>"  # type: ignore[misc]
+        factory = f.default_factory  # type: ignore[misc]
+        if factory is list:
+            return "[]"
+        if factory is dict:
+            return "{}"
+        if factory is set:
+            return "set()"
+        if factory is tuple:
+            return "()"
+        return "<factory>"
     return "required"
 
 
@@ -424,15 +433,14 @@ def _fmt_type(tp: Any) -> str:
         elif origin is not None:
             name = getattr(origin, "__name__", None) or str(origin)
             args = _typing.get_args(tp)
-            rendered = (
-                f"{name}[{', '.join(_fmt_type(a) for a in args)}]" if args else name
-            )
+            rendered = f"{name}[{', '.join(_fmt_type(a) for a in args)}]" if args else name
         elif isinstance(tp, type):
             rendered = tp.__name__
         else:
             rendered = str(tp)
 
     rendered = re.sub(r"\bflet\.(?:controls|components|utils)\.(?:\w+\.)*", "", rendered)
+    rendered = re.sub(r"<class '([\w.]+)'>", lambda m: m.group(1).rsplit(".", 1)[-1], rendered)
     return re.sub(r"ForwardRef\('(\w+)'\)", r"\1", rendered)
 
 
@@ -589,7 +597,7 @@ def list_api() -> dict[str, Any]:
     import flet  # noqa: PLC0415
 
     lazy: dict[str, str] = dict(getattr(flet, "_LAZY", {}) or {})
-    names = list(getattr(flet, "__all__", []) or dir(flet))
+    names = [n for n in (getattr(flet, "__all__", []) or dir(flet)) if not n.startswith("_")]
 
     if not lazy:
         return {

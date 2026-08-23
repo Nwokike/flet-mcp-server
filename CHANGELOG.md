@@ -1,6 +1,32 @@
 # Changelog
 
-## 1.0.1 (2026-08-22)
+## 1.0.2 (2026-08-23)
+
+Polish release from a full live-tool audit — every tool exercised against the
+published package, every found defect fixed and regression-tested.
+
+- **Fixed: stdlib shadowing** — the internal module `http.py` shadowed
+  Python's stdlib `http` package whenever `src/flet_mcp` landed on `sys.path`
+  (e.g. `python src/flet_mcp/main.py`), breaking `import http.client` inside
+  starlette. Renamed to `http_client.py`.
+- **Fixed: duplicate deprecation diagnostics** — one deprecated-class usage in
+  `verify_flet_code` produced three `deprecated` entries (static pass plus
+  flet's warning firing on both `__init__` and `__post_init__`); now reported
+  exactly once, with the static entry's did-you-mean hint.
+- **Fixed: repr leaks in `inspect_flet_control`** — property tables no longer
+  show `<class 'RouteChangeEvent'>` (bare names now) or `<<lambda>()>`
+  defaults (`[]`, `{}`, `<factory>`).
+- **Fixed: fuzzy-match noise** — icon/color searches no longer return
+  look-alikes (`CupertinoColors.LABEL` for "amber", `PALETTE` for "delete");
+  fuzzy cutoff tightened to 0.7.
+- **Fixed: `list_flet_api`** no longer lists `__version__` and other
+  underscore names.
+- **Improved: `get_flet_doc` output** — Docusaurus frontmatter, JSX imports
+  and `<CodeExample>` tags are stripped (replaced by a pointer to the example
+  source), so docs pages read as clean Markdown.
+- 82 tests (was 75), each fix covered by a regression test.
+
+## 1.0.1 (2026-08-23)
 
 - **New: official examples** — `search_flet_examples(query)` and
   `get_flet_example(example_id)` serve the runnable example apps from the flet

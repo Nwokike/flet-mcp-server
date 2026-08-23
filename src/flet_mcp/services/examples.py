@@ -13,7 +13,7 @@ from urllib.parse import quote
 import httpx
 
 from flet_mcp import config
-from flet_mcp.http import SharedClient
+from flet_mcp.http_client import SharedClient
 from flet_mcp.exceptions import FetchError, SourceError
 
 cache = config.new_cache()

@@ -324,6 +324,18 @@ async def verify_code(code: str, timeout_secs: int = DEFAULT_TIMEOUT_SECS) -> Ve
             )
         )
 
+    # The static and dynamic passes both report some issues (e.g. deprecated
+    # classes); keep the first (static, which carries the hint) per (code, line).
+    deduped: list[Diagnostic] = []
+    seen: set[tuple[str, int | None]] = set()
+    for d in diagnostics:
+        key = (d.code, d.line)
+        if key in seen:
+            continue
+        seen.add(key)
+        deduped.append(d)
+    diagnostics = deduped
+
     if dynamic.get("status") == "timeout":
         diagnostics.append(
             Diagnostic(

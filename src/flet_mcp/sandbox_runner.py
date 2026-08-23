@@ -35,6 +35,7 @@ def _user_line(exc: BaseException) -> int | None:
 
 def _collect_warnings(caught: list[warnings.WarningMessage]) -> list[dict]:
     out = []
+    seen: set[tuple[int | None, str]] = set()
     for w in caught:
         if not issubclass(w.category, (DeprecationWarning, PendingDeprecationWarning)):
             continue
@@ -42,6 +43,12 @@ def _collect_warnings(caught: list[warnings.WarningMessage]) -> list[dict]:
         # only keep those (skip third-party noise).
         if w.filename != USER_FILENAME:
             continue
+        # flet's deprecated_class wraps both __init__ AND __post_init__, so one
+        # construction fires the same warning twice — collapse those.
+        key = (w.lineno, str(w.message))
+        if key in seen:
+            continue
+        seen.add(key)
         out.append({"line": w.lineno, "message": str(w.message)})
     return out
 

@@ -7,7 +7,7 @@ from mcp.server.mcpserver import MCPServer
 from mcp_types import ToolAnnotations
 from starlette.responses import PlainTextResponse
 
-from flet_mcp.http import SharedClient
+from flet_mcp.http_client import SharedClient
 from flet_mcp.models import Diagnostic, FletVersionInfo, VerifyReport
 from flet_mcp.services.flet_source import (
     VENV_ENV_VAR,

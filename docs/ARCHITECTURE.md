@@ -20,7 +20,7 @@ flet-mcp-server/
 │   │   └── __init__.py
 │   ├── config.py               # cache dir/factory, repo/branch env vars
 │   ├── exceptions.py
-│   ├── http.py                 # shared retrying httpx client + rate-limit hook
+│   ├── http_client.py            # shared retrying httpx client + rate-limit hook
 │   ├── main.py                 # entry point; stdio/sse/streamable-http via env
 │   ├── models.py               # pydantic models for structured tool outputs
 │   ├── sandbox_runner.py       # subprocess code-execution sandbox

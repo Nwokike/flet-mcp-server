@@ -21,6 +21,7 @@ def isolated_cache():
         yield
         examples.cache = old
 
+
 TREE = {
     "tree": [
         {"path": "counter/pyproject.toml", "type": "blob"},

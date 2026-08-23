@@ -214,3 +214,50 @@ def test_list_api_degrades_without_registry(monkeypatch):
 def test_env_var_name_exported():
     assert fs.VENV_ENV_VAR == "FLET_MCP_VENV"
     assert "FLET_MCP_VENV" in os.environ or True  # documented name, not required set
+
+
+# --- v1.0.2 regression: output-quality defects ---
+
+
+def test_inspect_page_no_repr_leaks():
+    out = fs.inspect_control("Page")
+    assert "<class '" not in out  # event types rendered as bare names
+    assert "<lambda>" not in out  # factory defaults rendered readably
+
+
+def test_search_colors_no_fuzzy_noise():
+    results = fs.search_colors("amber")
+    assert not any("LABEL" in r for r in results)
+
+
+def test_search_icons_no_fuzzy_noise():
+    results = fs.search_icons("delete")
+    assert not any("PALETTE" in r for r in results)
+
+
+def test_list_api_has_no_dunder_noise():
+    api = fs.list_api()
+    for group, names in api.items():
+        if isinstance(names, list):
+            assert not any(n.startswith("_") for n in names), group
+
+
+def test_package_does_not_shadow_stdlib():
+    """v1.0.2 regression: src/flet_mcp/http.py shadowed the stdlib `http`
+    package whenever the package dir landed on sys.path (e.g. running
+    `python src/flet_mcp/main.py` directly) — starlette's `import http.client`
+    exploded. The module is now http_client.py."""
+    import subprocess
+    import sys
+    from pathlib import Path
+
+    pkg_dir = Path(__file__).resolve().parent.parent / "src" / "flet_mcp"
+    code = "import sys; sys.path.insert(0, sys.argv[1]); import http.client; print('ok')"
+    result = subprocess.run(
+        [sys.executable, "-c", code, str(pkg_dir)],
+        capture_output=True,
+        text=True,
+        timeout=30,
+    )
+    assert result.returncode == 0, result.stderr
+    assert result.stdout.strip() == "ok"

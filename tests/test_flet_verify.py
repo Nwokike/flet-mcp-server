@@ -123,6 +123,17 @@ async def test_dynamic_captures_deprecation_warning():
 
 
 @pytest.mark.asyncio
+async def test_deprecation_reported_once():
+    """v1.0.2 regression: one deprecated usage produced THREE 'deprecated'
+    diagnostics (static + flet warning on both __init__ and __post_init__)."""
+    report = await fv.verify_code(
+        "import flet as ft\ndef main(page):\n    page.add(ft.ElevatedButton())\nft.app(main)\n"
+    )
+    deprecated = [d for d in report.diagnostics if d.code == "deprecated"]
+    assert len(deprecated) == 1, deprecated
+
+
+@pytest.mark.asyncio
 async def test_dynamic_neutralizes_ft_app():
     # If ft.app were NOT neutralized this would hang until timeout.
     report = await fv.verify_code(

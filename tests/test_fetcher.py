@@ -198,8 +198,40 @@ async def test_get_doc_content(docs_fetcher, mock_response):
 
     content = await docs_fetcher.get_doc_content("website/docs/controls/dropdown/index.md")
 
-    assert "flet.Dropdown" in content
-    assert "Dropdown" in content
+    assert "# Dropdown" in content
+    assert "selecting one value" in content
+    assert "class_name" not in content  # frontmatter is stripped
+
+
+MDX_DOC = """---
+class_name: "flet.Dropdown"
+title: "Dropdown"
+---
+
+import {CodeExample} from '@site/src/components/crocodocs';
+
+# Dropdown
+
+<CodeExample path="controls/material/dropdown/basic/main.py" language="python" />
+
+<RealContent>stay</RealContent>
+"""
+
+
+@pytest.mark.asyncio
+async def test_get_doc_content_strips_mdx_scaffolding(docs_fetcher, mock_response):
+    """v1.0.2: raw MDX frontmatter/imports/CodeExample tags are noise for
+    LLMs — get_doc_content cleans them."""
+    docs_fetcher.client.get = AsyncMock(return_value=mock_response(text=MDX_DOC))
+
+    content = await docs_fetcher.get_doc_content("website/docs/controls/dropdown/index.md")
+
+    assert "class_name" not in content  # frontmatter stripped
+    assert "@site/src/components" not in content  # JSX import stripped
+    assert "<CodeExample" not in content
+    assert "controls/material/dropdown/basic/main.py" in content  # path preserved as note
+    assert "# Dropdown" in content
+    assert "<RealContent>" in content  # unknown JSX tags left alone
 
 
 @pytest.mark.asyncio

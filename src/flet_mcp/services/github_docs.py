@@ -1,11 +1,12 @@
 import difflib
 import logging
+import re
 from urllib.parse import quote
 
 import httpx
 
 from flet_mcp import config
-from flet_mcp.http import SharedClient
+from flet_mcp.http_client import SharedClient
 from flet_mcp.exceptions import FetchError, DocNotFoundError
 
 logger = logging.getLogger(__name__)
@@ -130,6 +131,21 @@ KEYWORD_INDEX = {
 }
 
 
+def _clean_markdown(text: str) -> str:
+    """Strip Docusaurus scaffolding that adds noise for LLM consumption:
+    YAML frontmatter, JSX import/export lines, and <CodeExample> tags
+    (replaced with a pointer to the example source)."""
+    text = re.sub(r"\A---\s*\n.*?\n---\s*\n", "", text, flags=re.DOTALL)
+    text = re.sub(r"^import\s+\{[^}]*\}\s+from\s+['\"].*['\"]\s*;?\s*$", "", text, flags=re.MULTILINE)
+    text = re.sub(r"^export\s+default\s+.*;?\s*$", "", text, flags=re.MULTILINE)
+    text = re.sub(
+        r"<CodeExample\s+path=[\"']([^\"']+)[\"'][^>]*/>",
+        r"*Runnable example: `\1` in the flet repo.*",
+        text,
+    )
+    return text.strip()
+
+
 class FletDocsFetcher:
     """Fetches and caches Flet documentation from the official GitHub repo."""
 
@@ -208,14 +224,15 @@ class FletDocsFetcher:
         return [p for p in await self._get_tree_paths(DOCS_SUBTREE) if p.endswith(".md")]
 
     async def get_doc_content(self, file_path: str) -> str:
-        """Fetches the raw Markdown content for a specific Flet doc file."""
+        """Fetches the raw Markdown for a doc file, cleaned for LLM consumption
+        (Docusaurus frontmatter, JSX imports and CodeExample tags stripped)."""
         raw_url = (
             f"https://raw.githubusercontent.com/{config.FLET_REPO}/{config.FLET_BRANCH}/{file_path}"
         )
         content = await self._fetch_text(raw_url)
 
         if content:
-            return content
+            return _clean_markdown(content)
         raise DocNotFoundError(file_path)
 
     async def search_docs(self, query: str) -> list[str]:
