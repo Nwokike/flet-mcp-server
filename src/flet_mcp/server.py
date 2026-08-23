@@ -22,6 +22,7 @@ from flet_mcp.services.flet_source import (
 from flet_mcp.services.flet_verify import DEFAULT_TIMEOUT_SECS, verify_code
 from flet_mcp.services.github_docs import FletDocsFetcher
 from flet_mcp.services.packages import FletPackageFetcher
+from flet_mcp.services.examples import FletExamplesFetcher
 from flet_mcp.exceptions import (
     DocNotFoundError,
     FetchError,
@@ -49,7 +50,8 @@ this:
 4. search_flet_source / read_flet_source — grep and read the implementation.
 5. search_flet_icons / search_flet_colors — valid constant names (never guess).
 6. Docs tools (search_flet_docs, get_flet_doc, list_flet_controls) — official
-   guides and cookbook patterns.
+   guides and cookbook patterns; search_flet_examples / get_flet_example —
+   real runnable apps for learning idioms.
 7. Ecosystem tools — official and third-party flet packages on PyPI.
 
 This server reads the flet package installed alongside it. To verify against
@@ -87,6 +89,7 @@ mcp = MCPServer(
 
 docs_fetcher = FletDocsFetcher()
 pkg_fetcher = FletPackageFetcher()
+examples_fetcher = FletExamplesFetcher()
 
 _READONLY = dict(read_only_hint=True, destructive_hint=False)
 
@@ -138,9 +141,7 @@ async def get_flet_version() -> FletVersionInfo:
     """
     try:
         r = resolve_flet()
-        return FletVersionInfo(
-            flet_version=r.version, package_path=str(r.pkg_dir), source=r.source
-        )
+        return FletVersionInfo(flet_version=r.version, package_path=str(r.pkg_dir), source=r.source)
     except SourceError as exc:
         logger.error("get_flet_version failed: %s", exc)
         return FletVersionInfo(flet_version="", package_path="", source="", error=str(exc))
@@ -208,7 +209,7 @@ async def read_flet_source(module: str, symbol: str | None = None, max_lines: in
 
 
 @mcp.tool(annotations=ToolAnnotations(title="List flet API", **_READONLY))
-async def list_flet_api() -> dict[str, list[str]]:
+async def list_flet_api() -> dict[str, list[str] | str]:
     """
     List every public name in the installed flet (the true flet.__all__), grouped
     by category: Material/Cupertino/Core controls, Services, Components & hooks,
@@ -223,7 +224,9 @@ async def list_flet_api() -> dict[str, list[str]]:
 
 
 @mcp.tool(annotations=ToolAnnotations(title="Search flet icons", **_READONLY))
-async def search_flet_icons(query: str, icon_set: str = "material", max_results: int = 50) -> list[str]:
+async def search_flet_icons(
+    query: str, icon_set: str = "material", max_results: int = 50
+) -> list[str]:
     """
     Search valid flet icon names for ft.Icons.* / ft.CupertinoIcons.*. NEVER
     invent icon names — models consistently hallucinate them. This reads the
@@ -279,21 +282,80 @@ async def search_flet_docs(query: str) -> list[str]:
 
 
 @mcp.tool(annotations=ToolAnnotations(title="Get flet doc page", **_READONLY))
-async def get_flet_doc(doc_path: str) -> str:
+async def get_flet_doc(doc_path: str, offset: int = 0, max_lines: int = 400) -> str:
     """
-    Fetch the full Markdown documentation for a specific Flet control or topic.
+    Fetch the Markdown documentation for a specific Flet control or topic, paged
+    to keep responses small. Long pages are cut off with a hint for the next
+    `offset` — page through instead of dumping huge docs into the conversation.
 
     Args:
         doc_path: The exact path of the doc file, usually obtained from search_flet_docs
                   (e.g., 'website/docs/controls/dropdown/index.md').
+        offset: Line to start from (default 0; the response tells you the next offset).
+        max_lines: Maximum lines to return per call (default 400).
     """
     try:
-        return await docs_fetcher.get_doc_content(doc_path)
+        content = await docs_fetcher.get_doc_content(doc_path)
     except DocNotFoundError:
         return f"Error: Documentation not found for '{doc_path}'. Use search_flet_docs to find valid paths."
     except FetchError as exc:
         logger.error("get_flet_doc failed: %s", exc)
         return f"Error: Could not fetch documentation: {exc}"
+
+    lines = content.splitlines()
+    offset = max(0, min(offset, len(lines)))
+    chunk = lines[offset : offset + max_lines]
+    more = (
+        f"\n\n… ({len(lines)} lines total — call get_flet_doc again with "
+        f"offset={offset + max_lines} for the rest)"
+        if offset + max_lines < len(lines)
+        else ""
+    )
+    return "\n".join(chunk) + more
+
+
+# --- OFFICIAL EXAMPLES (live from the flet repo) ---
+
+
+@mcp.tool(annotations=ToolAnnotations(title="Search flet examples", **_READONLY))
+async def search_flet_examples(query: str, max_results: int = 5) -> list[str]:
+    """
+    Search the official Flet example apps in the flet repo (counter, todo, 7guis,
+    routing, games, declarative components, …) by keyword. Each result is a
+    runnable project; fetch its full source with get_flet_example. Reading a real
+    example is the fastest way to learn correct Flet idioms for a pattern.
+
+    Args:
+        query: Keywords describing the app or pattern (e.g., 'counter', 'todo',
+               'routing', 'drag', 'animation', 'form validation').
+        max_results: Maximum results (default 5).
+    """
+    try:
+        return await examples_fetcher.search_examples(query, max_results)
+    except FetchError as exc:
+        logger.error("search_flet_examples failed: %s", exc)
+        return [f"Error searching examples: {exc}"]
+
+
+@mcp.tool(annotations=ToolAnnotations(title="Get flet example source", **_READONLY))
+async def get_flet_example(example_id: str, max_chars: int = 24000) -> str:
+    """
+    Fetch the full source of an official Flet example app (from
+    search_flet_examples): pyproject.toml plus its Python files, bundled with a
+    character budget so huge examples page gracefully.
+
+    Args:
+        example_id: Example id from search_flet_examples (e.g., 'counter' or
+                    '7guis/flight_booker').
+        max_chars: Total character budget for the returned source (default 24000).
+    """
+    try:
+        return await examples_fetcher.get_example(example_id, max_chars)
+    except SourceError as exc:
+        return f"Error: {exc}"
+    except FetchError as exc:
+        logger.error("get_flet_example failed: %s", exc)
+        return f"Error fetching example: {exc}"
 
 
 @mcp.tool(annotations=ToolAnnotations(title="List documented controls", **_READONLY))

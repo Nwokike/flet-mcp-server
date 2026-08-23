@@ -109,17 +109,50 @@ so every answer matches the exact version your app runs:
 * `search_flet_colors(query)` — valid `ft.Colors.*` constants, including shades
   like `AMBER_500`.
 
-**Docs** — official guides from the Flet repo (fetched live, cached 24h):
+**Docs & examples** — official guides and runnable apps:
 
 * `search_flet_docs(query)` — smart search (direct > keyword aliases > fuzzy).
-* `get_flet_doc(doc_path)` — full Markdown of a doc page.
+* `get_flet_doc(doc_path, offset?, max_lines?)` — Markdown of a doc page, paged
+  so long pages don't flood the conversation.
 * `list_flet_controls()` — every control that has a docs page.
+* `search_flet_examples(query)` — official example apps (counter, todo, 7guis,
+  routing, games…) straight from the flet repo, always current.
+* `get_flet_example(example_id)` — full source of an example project.
 
 **Ecosystem** — packages beyond core flet:
 
 * `list_official_packages()` — official extensions from the monorepo (flet-audio, flet-video, …).
 * `search_flet_ecosystem(query)` — verified community packages on GitHub/PyPI.
 * `get_package_details(package_name)` — PyPI version, classification, install command.
+
+## Tools reference (complete list)
+
+All 16 tools, three prompts and two resources exposed by the server:
+
+| # | Tool | What it does |
+|---|---|---|
+| 1 | `verify_flet_code(code, timeout_secs?)` | Verify AI-written Flet code against the installed flet (static + sandboxed execution with flet's own validators); line-numbered diagnostics. |
+| 2 | `get_flet_version()` | Which flet version the tools read, and from where. |
+| 3 | `inspect_flet_control(control_name)` | Exact current API of any control: properties, types, defaults, events, deprecations, full class source. |
+| 4 | `search_flet_source(query, max_results?)` | Ranked grep across the installed flet sources. |
+| 5 | `read_flet_source(module, symbol?, max_lines?)` | Numbered source of any flet module or a single class/function. |
+| 6 | `list_flet_api()` | The installed flet's true `__all__`, grouped by category. |
+| 7 | `search_flet_icons(query, icon_set?, max_results?)` | Valid `ft.Icons.*` / `ft.CupertinoIcons.*` names. |
+| 8 | `search_flet_colors(query, max_results?)` | Valid `ft.Colors.*` / `ft.CupertinoColors.*` constants. |
+| 9 | `search_flet_docs(query)` | Search the official docs index (fuzzy + keyword aliases). |
+| 10 | `get_flet_doc(doc_path, offset?, max_lines?)` | Paged Markdown of a doc page. |
+| 11 | `list_flet_controls()` | Controls that have documentation pages. |
+| 12 | `search_flet_examples(query, max_results?)` | Search official example apps by keyword. |
+| 13 | `get_flet_example(example_id, max_chars?)` | Full source of an official example project. |
+| 14 | `list_official_packages()` | Official flet extension packages. |
+| 15 | `search_flet_ecosystem(query)` | Verified third-party flet packages on GitHub. |
+| 16 | `get_package_details(package_name)` | PyPI details + install command for a package. |
+
+**Prompts**: `verify_flet_code_prompt(code)`, `migrate_flet_prompt(project_summary)`,
+`build_flet_ui_prompt(spec)` — guided workflows that encode the verify-first loop.
+
+**Resources**: `flet://version` (static) and `flet-source://{module}` (template —
+installed source, path-traversal safe).
 
 ## Matching your project's Flet version
 
@@ -260,7 +293,7 @@ git clone https://github.com/Nwokike/flet-mcp-server.git
 cd flet-mcp-server
 uv sync
 
-uv run pytest                              # unit tests (69)
+uv run pytest                              # unit tests (75)
 uv run ruff check src/ tests/ scripts/     # lint
 uv run python scripts/smoke_stdio.py       # full MCP handshake from a fresh uvx env
 ```

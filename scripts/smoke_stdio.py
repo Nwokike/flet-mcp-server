@@ -29,6 +29,8 @@ REQUIRED_TOOLS = {
     "search_flet_docs",
     "get_flet_doc",
     "list_flet_controls",
+    "search_flet_examples",
+    "get_flet_example",
     "list_official_packages",
     "search_flet_ecosystem",
     "get_package_details",
@@ -76,8 +78,12 @@ async def main() -> int:
             resources = await session.list_resources()
             templates = await session.list_resource_templates()
             template_uris = {t.uri_template for t in templates.resource_templates}
-            assert any(r.uri == "flet://version" for r in resources.resources), "flet://version resource missing"
-            assert any("flet-source://" in u for u in template_uris), "flet-source:// template missing"
+            assert any(r.uri == "flet://version" for r in resources.resources), (
+                "flet://version resource missing"
+            )
+            assert any("flet-source://" in u for u in template_uris), (
+                "flet-source:// template missing"
+            )
 
             version = await session.read_resource("flet://version")
             assert "flet_version" in version.contents[0].text
@@ -87,6 +93,13 @@ async def main() -> int:
 
             result = await session.call_tool("get_flet_version", {})
             assert "flet_version" in result.content[0].text
+
+            # Regression for v1.0.0: the protocol validates structured outputs
+            # against the declared return type — calling (not just listing) this
+            # tool caught a dict[str, list[str]] annotation rejecting the
+            # "flet_version" string key.
+            result = await session.call_tool("list_flet_api", {})
+            assert "Material controls" in result.content[0].text
 
             result = await session.call_tool("inspect_flet_control", {"control_name": "Button"})
             assert "# Button" in result.content[0].text

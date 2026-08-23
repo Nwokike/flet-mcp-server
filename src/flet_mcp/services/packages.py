@@ -15,11 +15,27 @@ PACKAGES_SUBTREE = "sdk/python/packages"
 MAX_CONCURRENT_VERIFICATIONS = 3
 
 _FALLBACK_OFFICIAL = [
-    "flet", "flet-ads", "flet-audio", "flet-audio-recorder", "flet-camera",
-    "flet-charts", "flet-cli", "flet-code-editor", "flet-color-pickers",
-    "flet-datatable2", "flet-desktop", "flet-flashlight", "flet-geolocator",
-    "flet-lottie", "flet-map", "flet-permission-handler", "flet-rive",
-    "flet-secure-storage", "flet-video", "flet-web", "flet-webview",
+    "flet",
+    "flet-ads",
+    "flet-audio",
+    "flet-audio-recorder",
+    "flet-camera",
+    "flet-charts",
+    "flet-cli",
+    "flet-code-editor",
+    "flet-color-pickers",
+    "flet-datatable2",
+    "flet-desktop",
+    "flet-flashlight",
+    "flet-geolocator",
+    "flet-lottie",
+    "flet-map",
+    "flet-permission-handler",
+    "flet-rive",
+    "flet-secure-storage",
+    "flet-video",
+    "flet-web",
+    "flet-webview",
 ]
 
 
@@ -71,10 +87,7 @@ class FletPackageFetcher:
             data = None
 
         if isinstance(data, dict) and data.get("tree"):
-            packages = {
-                item["path"] for item in data["tree"]
-                if item.get("type") == "tree"
-            }
+            packages = {item["path"] for item in data["tree"] if item.get("type") == "tree"}
             if packages:
                 # Normalise to PyPI-style distribution names and include the core.
                 return sorted({f"flet-{p}" if not p.startswith("flet") else p for p in packages})
@@ -127,13 +140,15 @@ class FletPackageFetcher:
 
         results = []
         for item in data["items"]:
-            results.append({
-                "name": item["name"],
-                "full_name": item["full_name"],
-                "description": item["description"],
-                "stars": item["stargazers_count"],
-                "url": item["html_url"],
-            })
+            results.append(
+                {
+                    "name": item["name"],
+                    "full_name": item["full_name"],
+                    "description": item["description"],
+                    "stars": item["stargazers_count"],
+                    "url": item["html_url"],
+                }
+            )
 
         # Verify in batches to avoid overwhelming PyPI
         verified = await self._verify_batch(results)

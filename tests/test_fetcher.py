@@ -31,6 +31,7 @@ def isolated_cache():
 
 # --- Fixtures ---
 
+
 @pytest.fixture
 def mock_response():
     def _response(status_code=200, json_data=None, text=""):
@@ -39,6 +40,7 @@ def mock_response():
         resp.json.return_value = json_data or {}
         resp.text = text
         return resp
+
     return _response
 
 
@@ -107,6 +109,7 @@ A dropdown control for selecting one value from a list.
 
 
 # --- Documentation Tests ---
+
 
 @pytest.mark.asyncio
 async def test_get_docs_tree(docs_fetcher, mock_response):
@@ -191,9 +194,7 @@ async def test_list_flet_controls(docs_fetcher, mock_response):
 
 @pytest.mark.asyncio
 async def test_get_doc_content(docs_fetcher, mock_response):
-    docs_fetcher.client.get = AsyncMock(
-        return_value=mock_response(text=MOCK_DROPDOWN_DOC)
-    )
+    docs_fetcher.client.get = AsyncMock(return_value=mock_response(text=MOCK_DROPDOWN_DOC))
 
     content = await docs_fetcher.get_doc_content("website/docs/controls/dropdown/index.md")
 
@@ -203,9 +204,7 @@ async def test_get_doc_content(docs_fetcher, mock_response):
 
 @pytest.mark.asyncio
 async def test_get_doc_content_not_found(docs_fetcher, mock_response):
-    docs_fetcher.client.get = AsyncMock(
-        return_value=mock_response(status_code=404)
-    )
+    docs_fetcher.client.get = AsyncMock(return_value=mock_response(status_code=404))
 
     with pytest.raises(DocNotFoundError) as exc_info:
         await docs_fetcher.get_doc_content("website/docs/non_existent_file.md")
@@ -246,9 +245,7 @@ async def test_list_official_packages(pkg_fetcher, mock_response):
 
 @pytest.mark.asyncio
 async def test_list_official_packages_fallback(pkg_fetcher):
-    pkg_fetcher.client.get = AsyncMock(
-        return_value=MagicMock(status_code=500, text="Error")
-    )
+    pkg_fetcher.client.get = AsyncMock(return_value=MagicMock(status_code=500, text="Error"))
 
     packages = await pkg_fetcher.list_official_packages()
 
@@ -258,27 +255,21 @@ async def test_list_official_packages_fallback(pkg_fetcher):
 
 @pytest.mark.asyncio
 async def test_is_true_flet_package(pkg_fetcher, mock_response):
-    pkg_fetcher.client.get = AsyncMock(
-        return_value=mock_response(json_data=MOCK_PYPI_FLET_AUDIO)
-    )
+    pkg_fetcher.client.get = AsyncMock(return_value=mock_response(json_data=MOCK_PYPI_FLET_AUDIO))
 
     assert await pkg_fetcher._is_true_flet_package("flet-audio") is True
 
 
 @pytest.mark.asyncio
 async def test_is_not_true_flet_package(pkg_fetcher, mock_response):
-    pkg_fetcher.client.get = AsyncMock(
-        return_value=mock_response(json_data=MOCK_PYPI_REQUESTS)
-    )
+    pkg_fetcher.client.get = AsyncMock(return_value=mock_response(json_data=MOCK_PYPI_REQUESTS))
 
     assert await pkg_fetcher._is_true_flet_package("requests") is False
 
 
 @pytest.mark.asyncio
 async def test_is_true_flet_package_not_found(pkg_fetcher, mock_response):
-    pkg_fetcher.client.get = AsyncMock(
-        return_value=mock_response(status_code=404)
-    )
+    pkg_fetcher.client.get = AsyncMock(return_value=mock_response(status_code=404))
 
     assert await pkg_fetcher._is_true_flet_package("nonexistent-pkg-xyz") is False
 
@@ -313,9 +304,7 @@ async def test_search_flet_ecosystem(pkg_fetcher, mock_response):
 
 @pytest.mark.asyncio
 async def test_search_flet_ecosystem_no_results(pkg_fetcher, mock_response):
-    pkg_fetcher.client.get = AsyncMock(
-        return_value=mock_response(json_data={"items": []})
-    )
+    pkg_fetcher.client.get = AsyncMock(return_value=mock_response(json_data={"items": []}))
 
     results = await pkg_fetcher.search_flet_ecosystem("nonexistent-xyz-123")
 
@@ -324,9 +313,7 @@ async def test_search_flet_ecosystem_no_results(pkg_fetcher, mock_response):
 
 @pytest.mark.asyncio
 async def test_get_package_details(pkg_fetcher, mock_response):
-    pkg_fetcher.client.get = AsyncMock(
-        return_value=mock_response(json_data=MOCK_PYPI_FLET_AUDIO)
-    )
+    pkg_fetcher.client.get = AsyncMock(return_value=mock_response(json_data=MOCK_PYPI_FLET_AUDIO))
 
     details = await pkg_fetcher.get_package_details("flet-audio")
 
@@ -338,9 +325,7 @@ async def test_get_package_details(pkg_fetcher, mock_response):
 
 @pytest.mark.asyncio
 async def test_get_package_details_not_found(pkg_fetcher, mock_response):
-    pkg_fetcher.client.get = AsyncMock(
-        return_value=mock_response(status_code=404)
-    )
+    pkg_fetcher.client.get = AsyncMock(return_value=mock_response(status_code=404))
 
     with pytest.raises(PackageNotFoundError) as exc_info:
         await pkg_fetcher.get_package_details("this-package-does-not-exist-xyz")
@@ -351,13 +336,15 @@ async def test_get_package_details_not_found(pkg_fetcher, mock_response):
 @pytest.mark.asyncio
 async def test_get_package_details_service_classification(pkg_fetcher, mock_response):
     pkg_fetcher.client.get = AsyncMock(
-        return_value=mock_response(json_data={
-            "info": {
-                "version": "1.0.0",
-                "summary": "Authentication service for Flet apps.",
-                "requires_dist": ["flet"],
+        return_value=mock_response(
+            json_data={
+                "info": {
+                    "version": "1.0.0",
+                    "summary": "Authentication service for Flet apps.",
+                    "requires_dist": ["flet"],
+                }
             }
-        })
+        )
     )
 
     details = await pkg_fetcher.get_package_details("flet-auth")
@@ -366,6 +353,7 @@ async def test_get_package_details_service_classification(pkg_fetcher, mock_resp
 
 
 # --- Exception Tests ---
+
 
 def test_doc_not_found_error():
     err = DocNotFoundError("some/path.md")

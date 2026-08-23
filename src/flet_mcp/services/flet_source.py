@@ -82,9 +82,7 @@ def resolve_flet() -> ResolvedFlet:
     if venv:
         venv_path = Path(venv).expanduser()
         if not venv_path.is_dir():
-            raise SourceError(
-                f"{VENV_ENV_VAR} points to '{venv}', which is not a directory."
-            )
+            raise SourceError(f"{VENV_ENV_VAR} points to '{venv}', which is not a directory.")
         sp = _site_packages(venv_path)
         if sp is None or not (sp / "flet").is_dir():
             raise SourceError(
@@ -102,20 +100,14 @@ def resolve_flet() -> ResolvedFlet:
         raise SourceError(f"Could not import flet: {exc}") from exc
 
     pkg_dir = Path(flet.__file__).resolve().parent
-    version = _version_from_dist_info(pkg_dir.parent) or getattr(
-        flet, "__version__", "unknown"
-    )
+    version = _version_from_dist_info(pkg_dir.parent) or getattr(flet, "__version__", "unknown")
     _resolved = ResolvedFlet(pkg_dir, str(version), source)
     return _resolved
 
 
 @lru_cache(maxsize=1)
 def _py_files(pkg_dir: str) -> tuple[str, ...]:
-    files = [
-        p
-        for p in Path(pkg_dir).rglob("*.py")
-        if "__pycache__" not in p.parts
-    ]
+    files = [p for p in Path(pkg_dir).rglob("*.py") if "__pycache__" not in p.parts]
     return tuple(sorted(str(p) for p in files))
 
 
@@ -163,9 +155,11 @@ def _find_symbol_node(tree: ast.Module, symbol: str) -> ast.AST | None:
         if isinstance(top, ast.ClassDef) and top.name == parts[0]:
             node = top
             break
-        if len(parts) == 1 and isinstance(
-            top, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)
-        ) and top.name == parts[0]:
+        if (
+            len(parts) == 1
+            and isinstance(top, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef))
+            and top.name == parts[0]
+        ):
             return top
     if node is None and len(parts) > 1:
         return None
@@ -223,7 +217,11 @@ def read_source(module: str, symbol: str | None = None, max_lines: int = MAX_LIN
         return header + _numbered(segment, node.lineno) + trunc
 
     shown = lines[:max_lines]
-    note = f"\n… ({len(lines) - max_lines} more lines — pass a symbol name to extract one)" if len(lines) > max_lines else ""
+    note = (
+        f"\n… ({len(lines) - max_lines} more lines — pass a symbol name to extract one)"
+        if len(lines) > max_lines
+        else ""
+    )
     return f"{r.banner} flet/{rel} ({len(lines)} lines)\n\n" + _numbered(shown) + note
 
 
@@ -306,7 +304,11 @@ def _enum_members_from_source(path: Path, class_name: str) -> dict[str, str]:
 @lru_cache(maxsize=4)
 def _icons_map(pkg_dir: str, icon_set: str) -> dict[str, int]:
     r = resolve_flet()
-    rel = "controls/material/icons.json" if icon_set == "material" else "controls/cupertino/cupertino_icons.json"
+    rel = (
+        "controls/material/icons.json"
+        if icon_set == "material"
+        else "controls/cupertino/cupertino_icons.json"
+    )
     path = r.pkg_dir / rel
     try:
         data = json.loads(path.read_text(encoding="utf-8"))
@@ -330,9 +332,7 @@ def search_icons(query: str, icon_set: str = "material", max_results: int = 50) 
     exact = [n for n in data if n == q]
     starts = [n for n in data if n.startswith(q) and n != q]
     contains = [n for n in data if q in n and not n.startswith(q)]
-    fuzzy = difflib.get_close_matches(
-        q, [n for n in data if q not in n], n=max_results, cutoff=0.6
-    )
+    fuzzy = difflib.get_close_matches(q, [n for n in data if q not in n], n=max_results, cutoff=0.6)
     ranked = exact + starts + sorted(contains) + fuzzy
 
     seen: set[str] = set()
@@ -367,7 +367,7 @@ def search_colors(query: str, max_results: int = 50) -> list[str]:
         for n in exact + starts + contains + fuzzy:
             if n not in seen:
                 seen.add(n)
-                ranked.append(f"{prefix}{n} = \"{items[n]}\"")
+                ranked.append(f'{prefix}{n} = "{items[n]}"')
         return ranked
 
     results = rank(material, "Colors.")
@@ -386,7 +386,11 @@ def _module_to_rel(module: str) -> str:
     r = resolve_flet()
     rel = module.replace("flet.", "", 1) if module.startswith("flet.") else module
     path = r.pkg_dir / Path(*rel.split("."))
-    return r.rel(path) if (path.with_suffix(".py")).exists() or (path / "__init__.py").exists() else rel.replace(".", "/")
+    return (
+        r.rel(path)
+        if (path.with_suffix(".py")).exists() or (path / "__init__.py").exists()
+        else rel.replace(".", "/")
+    )
 
 
 def _default_repr(f: Any) -> str:
@@ -399,29 +403,37 @@ def _default_repr(f: Any) -> str:
 
 def _fmt_type(tp: Any) -> str:
     """Human/LLM-friendly rendering: Annotated metadata stripped, unions as
-    `X | Y | None`, bare class names instead of reprs."""
+    `X | Y | None`, bare class names instead of reprs, flet module prefixes
+    and ForwardRef wrappers cleaned up."""
     import types as _types
     import typing as _typing
 
     if isinstance(tp, str):
-        return tp
-    if tp is None or tp is type(None):
-        return "None"
-    origin = _typing.get_origin(tp)
-    if origin is _typing.Annotated:
-        args = _typing.get_args(tp)
-        return _fmt_type(args[0]) if args else str(tp)
-    if isinstance(tp, _typing.ForwardRef):
-        return tp.__forward_arg__
-    if origin in (_typing.Union, _types.UnionType):
-        return " | ".join(_fmt_type(a) for a in _typing.get_args(tp))
-    if origin is not None:
-        name = getattr(origin, "__name__", None) or str(origin)
-        args = _typing.get_args(tp)
-        return f"{name}[{', '.join(_fmt_type(a) for a in args)}]" if args else name
-    if isinstance(tp, type):
-        return tp.__name__
-    return re.sub(r"^typing\.", "", str(tp))
+        rendered = tp
+    elif tp is None or tp is type(None):
+        rendered = "None"
+    else:
+        origin = _typing.get_origin(tp)
+        if origin is _typing.Annotated:
+            args = _typing.get_args(tp)
+            rendered = _fmt_type(args[0]) if args else str(tp)
+        elif isinstance(tp, _typing.ForwardRef):
+            rendered = tp.__forward_arg__
+        elif origin in (_typing.Union, _types.UnionType):
+            rendered = " | ".join(_fmt_type(a) for a in _typing.get_args(tp))
+        elif origin is not None:
+            name = getattr(origin, "__name__", None) or str(origin)
+            args = _typing.get_args(tp)
+            rendered = (
+                f"{name}[{', '.join(_fmt_type(a) for a in args)}]" if args else name
+            )
+        elif isinstance(tp, type):
+            rendered = tp.__name__
+        else:
+            rendered = str(tp)
+
+    rendered = re.sub(r"\bflet\.(?:controls|components|utils)\.(?:\w+\.)*", "", rendered)
+    return re.sub(r"ForwardRef\('(\w+)'\)", r"\1", rendered)
 
 
 def inspect_control(name: str) -> str:
@@ -438,9 +450,7 @@ def inspect_control(name: str) -> str:
         if public:
             target = getattr(flet, public[0])
     if target is None:
-        close = difflib.get_close_matches(
-            name, list(getattr(flet, "__all__", [])), n=5, cutoff=0.5
-        )
+        close = difflib.get_close_matches(name, list(getattr(flet, "__all__", [])), n=5, cutoff=0.5)
         hint = f" Close matches: {', '.join(close)}." if close else ""
         raise SymbolNotFoundError(
             f"'{name}' is not exported by flet {r.version}.{hint} "
@@ -468,8 +478,7 @@ def inspect_control(name: str) -> str:
     out.write(
         "inherits: "
         + " → ".join(
-            f"{c.__name__} (flet/{_module_to_rel(c.__module__)}.py)"
-            for c in reversed(mro[1:])
+            f"{c.__name__} (flet/{_module_to_rel(c.__module__)}.py)" for c in reversed(mro[1:])
         )
         + "\n\n"
     )
@@ -478,9 +487,7 @@ def inspect_control(name: str) -> str:
         m = re.search(r'deprecated_class\(\s*reason="([^"]+)"', source)
         reason = m.group(1) if m else "see source"
         v = re.search(r'version="([^"]+)"', source)
-        out.write(
-            f"⚠ DEPRECATED since flet {v.group(1) if v else '?'}: {reason}\n\n"
-        )
+        out.write(f"⚠ DEPRECATED since flet {v.group(1) if v else '?'}: {reason}\n\n")
 
     events: list[str] = []
     rows: list[tuple[str, str, str, str]] = []
@@ -537,7 +544,11 @@ def inspect_control(name: str) -> str:
     out.write(src_note)
 
     result = out.getvalue()
-    return result if len(result) <= MAX_OUTPUT_CHARS * 2 else result[: MAX_OUTPUT_CHARS * 2] + "\n… (truncated)"
+    return (
+        result
+        if len(result) <= MAX_OUTPUT_CHARS * 2
+        else result[: MAX_OUTPUT_CHARS * 2] + "\n… (truncated)"
+    )
 
 
 def dataclass_fields_safe(cls: type) -> bool:

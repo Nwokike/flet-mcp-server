@@ -40,7 +40,9 @@ def run_server():
         sys.exit(1)
     kwargs = _transport_kwargs(transport)
     if kwargs:
-        logger.info("Serving Flet MCP Server on %s at %s:%s", transport, kwargs["host"], kwargs["port"])
+        logger.info(
+            "Serving Flet MCP Server on %s at %s:%s", transport, kwargs["host"], kwargs["port"]
+        )
     try:
         mcp.run(transport=transport, **kwargs)
     except Exception as e:

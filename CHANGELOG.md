@@ -1,5 +1,27 @@
 # Changelog
 
+## 1.0.1 (2026-08-22)
+
+- **New: official examples** — `search_flet_examples(query)` and
+  `get_flet_example(example_id)` serve the runnable example apps from the flet
+  repo (counter, todo, 7guis, routing, games, declarative components…), live
+  via the same subtree-fetch + cache infra as the docs tools — always in sync
+  with the repo, with a character budget so big examples page gracefully.
+- **New: paged doc reads** — `get_flet_doc` takes `offset`/`max_lines` and
+  tells you the next offset, keeping long doc pages from flooding the
+  conversation.
+- **Fixed**: `list_flet_api` failed through the MCP protocol — its
+  `dict[str, list[str]]` return annotation made the SDK's structured-output
+  validation reject the `flet_version` string key. Now typed
+  `dict[str, list[str] | str]`. Found by live-testing all tools against the
+  published 1.0.0; the smoke test now *calls* the tool through the protocol
+  (listing it wasn't enough).
+- **Polish**: `inspect_flet_control` property tables render readable type
+  names (`Event[Button]` instead of
+  `flet.controls.control_event.Event[ForwardRef('Button')]`).
+- **Docs**: README now carries a complete tools reference (all 16 tools,
+  prompts and resources) in one table.
+
 ## 1.0.0 (2026-08-22)
 
 The source-of-truth release. Flet changes faster than model training data, so

@@ -33,7 +33,9 @@ DEFAULT_TIMEOUT_SECS = 15
 # --- Static pass -----------------------------------------------------------
 
 
-def _diag(severity: str, code: str, message: str, line: int | None, hint: str | None = None) -> Diagnostic:
+def _diag(
+    severity: str, code: str, message: str, line: int | None, hint: str | None = None
+) -> Diagnostic:
     return Diagnostic(severity=severity, code=code, message=message, line=line, hint=hint)
 
 
@@ -118,11 +120,14 @@ def run_static(code: str) -> list[Diagnostic]:
             imported_direct.update(a.name for a in node.names)
 
     if not aliases and not imported_direct:
-        return [_diag(
-            "warning", "no-import",
-            "Snippet never imports flet; nothing Flet-specific to check statically.",
-            None,
-        )]
+        return [
+            _diag(
+                "warning",
+                "no-import",
+                "Snippet never imports flet; nothing Flet-specific to check statically.",
+                None,
+            )
+        ]
 
     defined = _defined_names(tree)
     public = set(getattr(flet, "__all__", dir(flet)))
@@ -132,16 +137,21 @@ def run_static(code: str) -> list[Diagnostic]:
     def check_class_call(cls_name: str, node: ast.Call, line: int) -> None:
         cls = getattr(flet, cls_name, None)
         if cls_name in deprecated:
-            diags.append(_diag(
-                "warning", "deprecated",
-                f"'{cls_name}' is deprecated in flet {r.version}.", line,
-                hint=_suggest(cls_name, public - deprecated),
-            ))
+            diags.append(
+                _diag(
+                    "warning",
+                    "deprecated",
+                    f"'{cls_name}' is deprecated in flet {r.version}.",
+                    line,
+                    hint=_suggest(cls_name, public - deprecated),
+                )
+            )
         if not isinstance(cls, type) or not hasattr(cls, "__dataclass_fields__"):
             return  # not a control: construction checks don't apply
         fields: dict = cls.__dataclass_fields__
         try:
             from typing import get_type_hints
+
             hints = get_type_hints(cls, include_extras=True)
         except Exception:  # noqa: BLE001 - degrade to no enum checks
             hints = {}
@@ -149,51 +159,74 @@ def run_static(code: str) -> list[Diagnostic]:
             if kw.arg is None:
                 continue
             if kw.arg not in fields:
-                diags.append(_diag(
-                    "error", "bad-kwarg",
-                    f"'{cls_name}' has no property '{kw.arg}' in flet {r.version}.",
-                    line, hint=_suggest(kw.arg, fields.keys()),
-                ))
+                diags.append(
+                    _diag(
+                        "error",
+                        "bad-kwarg",
+                        f"'{cls_name}' has no property '{kw.arg}' in flet {r.version}.",
+                        line,
+                        hint=_suggest(kw.arg, fields.keys()),
+                    )
+                )
                 continue
             if isinstance(kw.value, ast.Constant) and isinstance(kw.value.value, str):
                 enum_cls = _unwrap_enum(hints.get(kw.arg, fields[kw.arg].type))
                 if enum_cls is not None:
                     valid = {m.name for m in enum_cls} | {m.value for m in enum_cls}
                     if kw.value.value not in valid:
-                        diags.append(_diag(
-                            "error", "enum-value",
-                            f"'{kw.arg}': '{kw.value.value}' is not a valid "
-                            f"{enum_cls.__name__}.",
-                            line,
-                            hint=_suggest(kw.value.value, valid),
-                        ))
-            if kw.arg.startswith("on_") and isinstance(kw.value, ast.Name) and kw.value.id not in defined:
-                diags.append(_diag(
-                    "warning", "undefined-handler",
-                    f"Event handler '{kw.value.id}' is not defined in the snippet.",
-                    line,
-                ))
+                        diags.append(
+                            _diag(
+                                "error",
+                                "enum-value",
+                                f"'{kw.arg}': '{kw.value.value}' is not a valid "
+                                f"{enum_cls.__name__}.",
+                                line,
+                                hint=_suggest(kw.value.value, valid),
+                            )
+                        )
+            if (
+                kw.arg.startswith("on_")
+                and isinstance(kw.value, ast.Name)
+                and kw.value.id not in defined
+            ):
+                diags.append(
+                    _diag(
+                        "warning",
+                        "undefined-handler",
+                        f"Event handler '{kw.value.id}' is not defined in the snippet.",
+                        line,
+                    )
+                )
 
     for node in ast.walk(tree):
         line = getattr(node, "lineno", None) or 0
-        if (
-            isinstance(node, ast.ImportFrom)
-            and node.module == "flet"
-        ):
+        if isinstance(node, ast.ImportFrom) and node.module == "flet":
             for a in node.names:
                 if a.name not in public and not hasattr(flet, a.name):
-                    diags.append(_diag(
-                        "error", "unknown-name",
-                        f"Cannot import '{a.name}' from flet {r.version}: it does not exist.",
-                        line, hint=_suggest(a.name, public),
-                    ))
-        if isinstance(node, ast.Attribute) and isinstance(node.value, ast.Name) and node.value.id in aliases:
+                    diags.append(
+                        _diag(
+                            "error",
+                            "unknown-name",
+                            f"Cannot import '{a.name}' from flet {r.version}: it does not exist.",
+                            line,
+                            hint=_suggest(a.name, public),
+                        )
+                    )
+        if (
+            isinstance(node, ast.Attribute)
+            and isinstance(node.value, ast.Name)
+            and node.value.id in aliases
+        ):
             if node.attr not in public and not hasattr(flet, node.attr):
-                diags.append(_diag(
-                    "error", "unknown-name",
-                    f"'{node.value.id}.{node.attr}' does not exist in flet {r.version}.",
-                    line, hint=_suggest(node.attr, public),
-                ))
+                diags.append(
+                    _diag(
+                        "error",
+                        "unknown-name",
+                        f"'{node.value.id}.{node.attr}' does not exist in flet {r.version}.",
+                        line,
+                        hint=_suggest(node.attr, public),
+                    )
+                )
         if isinstance(node, ast.Call):
             func = node.func
             if (
@@ -221,7 +254,9 @@ async def run_dynamic(code: str, timeout_secs: int = DEFAULT_TIMEOUT_SECS) -> di
             env["PYTHONPATH"] = str(sp) + os.pathsep + env.get("PYTHONPATH", "")
 
     proc = await asyncio.create_subprocess_exec(
-        sys.executable, "-m", "flet_mcp.sandbox_runner",
+        sys.executable,
+        "-m",
+        "flet_mcp.sandbox_runner",
         stdin=asyncio.subprocess.PIPE,
         stdout=asyncio.subprocess.PIPE,
         stderr=asyncio.subprocess.PIPE,
@@ -247,11 +282,15 @@ async def run_dynamic(code: str, timeout_secs: int = DEFAULT_TIMEOUT_SECS) -> di
         return {
             "status": "errors",
             "controls_verified": 0,
-            "errors": [{
-                "line": None,
-                "type": "SandboxError",
-                "message": (err.decode(errors="replace") or "sandbox produced no report")[-500:],
-            }],
+            "errors": [
+                {
+                    "line": None,
+                    "type": "SandboxError",
+                    "message": (err.decode(errors="replace") or "sandbox produced no report")[
+                        -500:
+                    ],
+                }
+            ],
             "warnings": [],
         }
     return report
@@ -267,22 +306,32 @@ async def verify_code(code: str, timeout_secs: int = DEFAULT_TIMEOUT_SECS) -> Ve
 
     diagnostics = list(static)
     for err in dynamic.get("errors", []):
-        diagnostics.append(Diagnostic(
-            severity="error", code="runtime",
-            message=f"{err.get('type', 'Error')}: {err.get('message', '')}",
-            line=err.get("line"),
-        ))
+        diagnostics.append(
+            Diagnostic(
+                severity="error",
+                code="runtime",
+                message=f"{err.get('type', 'Error')}: {err.get('message', '')}",
+                line=err.get("line"),
+            )
+        )
     for warn in dynamic.get("warnings", []):
-        diagnostics.append(Diagnostic(
-            severity="warning", code="deprecated",
-            message=warn.get("message", ""), line=warn.get("line"),
-        ))
+        diagnostics.append(
+            Diagnostic(
+                severity="warning",
+                code="deprecated",
+                message=warn.get("message", ""),
+                line=warn.get("line"),
+            )
+        )
 
     if dynamic.get("status") == "timeout":
-        diagnostics.append(Diagnostic(
-            severity="error", code="timeout",
-            message=f"Code did not finish within {timeout_secs}s (infinite loop or blocking call?).",
-        ))
+        diagnostics.append(
+            Diagnostic(
+                severity="error",
+                code="timeout",
+                message=f"Code did not finish within {timeout_secs}s (infinite loop or blocking call?).",
+            )
+        )
         status = "timeout"
     elif any(d.severity == "error" for d in diagnostics):
         status = "errors"

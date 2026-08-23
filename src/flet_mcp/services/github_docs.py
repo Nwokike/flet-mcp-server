@@ -19,17 +19,55 @@ DOCS_SUBTREE = "website/docs"
 KEYWORD_INDEX = {
     "input": ["textfield", "searchbar", "dropdown", "datepicker", "timepicker", "autocomplete"],
     "text": ["textfield", "text", "markdown", "codeeditor"],
-    "button": ["filledbutton", "outlinedbutton", "textbutton", "iconbutton", "filledtonalbutton", "filledtonaliconbutton", "fillediconbutton", "outlinediconbutton", "floatingactionbutton", "popupmenubutton", "menubar", "menuitembutton", "submenubutton"],
-    "select": ["dropdown", "dropdownm2", "checkbox", "radio", "radiogroup", "switch", "segmentedbutton", "segment", "chip"],
+    "button": [
+        "filledbutton",
+        "outlinedbutton",
+        "textbutton",
+        "iconbutton",
+        "filledtonalbutton",
+        "filledtonaliconbutton",
+        "fillediconbutton",
+        "outlinediconbutton",
+        "floatingactionbutton",
+        "popupmenubutton",
+        "menubar",
+        "menuitembutton",
+        "submenubutton",
+    ],
+    "select": [
+        "dropdown",
+        "dropdownm2",
+        "checkbox",
+        "radio",
+        "radiogroup",
+        "switch",
+        "segmentedbutton",
+        "segment",
+        "chip",
+    ],
     "list": ["listview", "listtile", "reorderablelistview", "menubar", "cupertinolisttile"],
     "grid": ["gridview", "datatable", "datatable2"],
     "table": ["datatable", "datatable2", "datacolumn", "datarow", "datacell"],
-    "dialog": ["alertdialog", "dialogcontrol", "cupertinoalertdialog", "cupertinoactionsheet", "cupertinodialogaction", "cupertinopicker"],
+    "dialog": [
+        "alertdialog",
+        "dialogcontrol",
+        "cupertinoalertdialog",
+        "cupertinoactionsheet",
+        "cupertinodialogaction",
+        "cupertinopicker",
+    ],
     "nav": ["navigationbar", "navigationrail", "navigationdrawer", "router", "multiview"],
     "navigation": ["navigationbar", "navigationrail", "navigationdrawer", "router", "multiview"],
     "menu": ["menubar", "popupmenubutton", "menuitembutton", "submenubutton", "contextmenu"],
     "layout": ["row", "column", "stack", "container", "responsive", "gridview", "listview"],
-    "form": ["textfield", "checkbox", "dropdown", "radiogroup", "formfieldcontrol", "autofillgroup"],
+    "form": [
+        "textfield",
+        "checkbox",
+        "dropdown",
+        "radiogroup",
+        "formfieldcontrol",
+        "autofillgroup",
+    ],
     "image": ["image", "circleavatar", "avatar"],
     "avatar": ["circleavatar"],
     "video": ["video"],
@@ -43,7 +81,13 @@ KEYWORD_INDEX = {
     "slider": ["slider", "rangeslider"],
     "date": ["datepicker", "daterangepicker", "cupertinodatepicker"],
     "time": ["timepicker", "cupertinotimepicker", "cupertinotimerpicker"],
-    "icon": ["icon", "iconbutton", "fillediconbutton", "outlinediconbutton", "filledtonaliconbutton"],
+    "icon": [
+        "icon",
+        "iconbutton",
+        "fillediconbutton",
+        "outlinediconbutton",
+        "filledtonaliconbutton",
+    ],
     "card": ["card"],
     "banner": ["banner"],
     "snackbar": ["snackbar"],
@@ -157,10 +201,7 @@ class FletDocsFetcher:
             return []
         if data.get("truncated"):
             logger.warning("Full GitHub tree was truncated; results may be partial")
-        return [
-            item["path"] for item in data["tree"]
-            if item["path"].startswith(f"{subtree}/")
-        ]
+        return [item["path"] for item in data["tree"] if item["path"].startswith(f"{subtree}/")]
 
     async def get_docs_tree(self) -> list[str]:
         """Gets a flat list of all Markdown documentation paths in the Flet repo."""
@@ -194,7 +235,8 @@ class FletDocsFetcher:
             if query_lower == keyword or query_lower in keyword:
                 for target in targets:
                     alias_matches.extend(
-                        path for path in all_docs
+                        path
+                        for path in all_docs
                         if target in path.lower() and path not in direct_matches
                     )
 
@@ -212,7 +254,8 @@ class FletDocsFetcher:
             close_names = difflib.get_close_matches(query_lower, control_names, n=5, cutoff=0.6)
             for name in close_names:
                 fuzzy_matches.extend(
-                    path for path in all_docs
+                    path
+                    for path in all_docs
                     if name in path.lower()
                     and path not in direct_matches
                     and path not in alias_matches
@@ -238,7 +281,7 @@ class FletDocsFetcher:
         for path in all_docs:
             if not path.startswith(controls_prefix):
                 continue
-            remainder = path[len(controls_prefix):]
+            remainder = path[len(controls_prefix) :]
             # Handle both "website/docs/controls/dropdown/index.md" and "website/docs/controls/textfield.md"
             name = remainder.split("/")[0].replace(".md", "")
             # Skip type definitions and nested sub-docs that aren't control names

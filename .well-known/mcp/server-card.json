@@ -41,11 +41,19 @@
     },
     {
       "name": "get_flet_doc",
-      "description": "Get raw Markdown for a specific Flet document"
+      "description": "Get paged Markdown for a specific Flet document"
     },
     {
       "name": "list_flet_controls",
       "description": "List all available Flet UI controls"
+    },
+    {
+      "name": "search_flet_examples",
+      "description": "Search official Flet example apps by keyword"
+    },
+    {
+      "name": "get_flet_example",
+      "description": "Get the full source of an official Flet example app"
     },
     {
       "name": "list_official_packages",

@@ -126,6 +126,14 @@ def test_inspect_control_full_report():
     assert "_values" not in out  # private machinery filtered
 
 
+def test_inspect_control_clean_type_rendering():
+    out = fs.inspect_control("Button")
+    table = out.split("## Properties", 1)[1].split("## Events", 1)[0]
+    assert "ForwardRef" not in table  # unwrapped
+    assert "flet.controls." not in table  # module prefixes stripped
+    assert "Event[Button]" in table  # readable event handler type
+
+
 def test_inspect_control_surfaces_deprecation():
     out = fs.inspect_control("ElevatedButton")
     assert "DEPRECATED" in out

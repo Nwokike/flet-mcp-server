@@ -64,9 +64,7 @@ def test_static_deprecated_class():
 
 
 def test_static_undefined_handler():
-    diags = fv.run_static(
-        "import flet as ft\nb = ft.Button(on_click=not_defined_anywhere)"
-    )
+    diags = fv.run_static("import flet as ft\nb = ft.Button(on_click=not_defined_anywhere)")
     assert "undefined-handler" in codes(diags)
 
 
@@ -99,10 +97,7 @@ async def test_dynamic_passes_clean_code():
 @pytest.mark.asyncio
 async def test_dynamic_catches_deferred_validator():
     report = await fv.verify_code(
-        "import flet as ft\n"
-        "def main(page):\n"
-        "    page.add(ft.Slider(min=10, max=5))\n"
-        "ft.app(main)\n"
+        "import flet as ft\ndef main(page):\n    page.add(ft.Slider(min=10, max=5))\nft.app(main)\n"
     )
     assert report.status == "errors"
     runtime = [d for d in report.diagnostics if d.code == "runtime"]
@@ -112,10 +107,7 @@ async def test_dynamic_catches_deferred_validator():
 @pytest.mark.asyncio
 async def test_dynamic_catches_wrong_kwarg_with_line():
     report = await fv.verify_code(
-        "import flet as ft\n"
-        "def main(page):\n"
-        "    page.add(ft.Button(text='hi'))\n"
-        "ft.app(main)\n"
+        "import flet as ft\ndef main(page):\n    page.add(ft.Button(text='hi'))\nft.app(main)\n"
     )
     runtime = [d for d in report.diagnostics if d.code == "runtime"]
     assert any(d.line == 3 and "text" in d.message for d in runtime)
@@ -125,10 +117,7 @@ async def test_dynamic_catches_wrong_kwarg_with_line():
 @pytest.mark.asyncio
 async def test_dynamic_captures_deprecation_warning():
     report = await fv.verify_code(
-        "import flet as ft\n"
-        "def main(page):\n"
-        "    page.add(ft.ElevatedButton())\n"
-        "ft.app(main)\n"
+        "import flet as ft\ndef main(page):\n    page.add(ft.ElevatedButton())\nft.app(main)\n"
     )
     assert "deprecated" in codes(report.diagnostics)
 
@@ -137,19 +126,14 @@ async def test_dynamic_captures_deprecation_warning():
 async def test_dynamic_neutralizes_ft_app():
     # If ft.app were NOT neutralized this would hang until timeout.
     report = await fv.verify_code(
-        "import flet as ft\n"
-        "def main(page):\n"
-        "    page.add(ft.Text('hi'))\n"
-        "ft.app(main)\n"
+        "import flet as ft\ndef main(page):\n    page.add(ft.Text('hi'))\nft.app(main)\n"
     )
     assert report.status == "passed"
 
 
 @pytest.mark.asyncio
 async def test_dynamic_timeout():
-    report = await fv.verify_code(
-        "import flet as ft\nwhile True:\n    pass\n", timeout_secs=3
-    )
+    report = await fv.verify_code("import flet as ft\nwhile True:\n    pass\n", timeout_secs=3)
     assert report.status == "timeout"
     assert "timeout" in codes(report.diagnostics)
 
