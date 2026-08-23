@@ -4,7 +4,7 @@
   </a>
 </p>
 
-<h1 align="center">Flet MCP Server</h1>
+<h1 align="center">MCP Server</h1>
 
 <p align="center">
   <em>MCP server that makes the installed Flet source code the source of truth for AI agents.</em>
