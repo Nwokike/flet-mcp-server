@@ -1,5 +1,21 @@
 # Changelog
 
+## 1.1.0 (2026-09-17)
+
+Flet 1.0.0 compatibility release.
+
+- **flet ≥ 1.0.0 required** — updated dependency lower bound from `0.86.0` to `1.0.0`.
+- **Sandbox app launcher neutralization** — updated `sandbox_runner.py` to neutralize
+  the 1.0.0 app launchers (`ft.run` and `ft.run_async`); `ft.app` and `ft.app_async`
+  were removed as callable functions in Flet 1.0.0.
+- **Updated tool docs and prompts** — `verify_flet_code` docstrings and verification
+  templates updated to recommend `ft.run(main)` instead of `ft.app(main)`.
+- **Fixed `SERVER_VERSION`** — corrected the User-Agent version string in `http_client.py`
+  which was previously stuck at `1.0.0`.
+- **Updated test suite for Flet 1.0.0 API surface** — adapted tests to account for
+  the removal of `ElevatedButton` and `ConstrainedControl`, and verified deprecation
+  warning capture with Flet 1.0.0's `InputBorder.OUTLINE`.
+
 ## 1.0.2 (2026-08-23)
 
 Polish release from a full live-tool audit — every tool exercised against the

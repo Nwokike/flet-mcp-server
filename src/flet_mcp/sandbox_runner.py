@@ -65,7 +65,7 @@ def main() -> None:
     import flet as ft
 
     # Neutralize anything that could launch a GUI/server from verified code.
-    for runner in ("app", "run", "app_async", "run_async"):
+    for runner in ("run", "run_async"):
         setattr(ft, runner, lambda *args, **kwargs: None)
 
     namespace = {"__name__": "__main__", "ft": ft, "flet": ft}
@@ -94,8 +94,8 @@ def main() -> None:
                 controls.sort(key=lambda c: getattr(c, "_i", 0))
                 return controls
 
-            # Typical AI code defines main(page) and ends with ft.app(main).
-            # ft.app is neutralized, so nothing would ever run — invoke main()
+            # Typical AI code defines main(page) and ends with ft.run(main).
+            # ft.run is neutralized, so nothing would ever run — invoke main()
             # ourselves against a mock page so the controls get constructed.
             # Keep the page (and main's return value) referenced until after
             # the validation walk: CPython frees unreferenced controls

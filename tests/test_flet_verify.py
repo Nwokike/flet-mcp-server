@@ -58,9 +58,21 @@ def test_static_valid_enum_ok():
     assert "enum-value" not in codes(diags)
 
 
-def test_static_deprecated_class():
-    diags = fv.run_static("import flet as ft\nb = ft.ElevatedButton()")
+def test_static_deprecated_class(monkeypatch):
+    # In Flet 1.0.0, no built-in classes carry @deprecated_class.
+    # Test that the static checker flags classes present in _deprecated_classes().
+    monkeypatch.setattr(fv, "_deprecated_classes", lambda pkg_dir: frozenset({"FakeDeprecated"}))
+    import flet
+    monkeypatch.setattr(flet, "FakeDeprecated", type("FakeDeprecated", (), {"__module__": "flet.controls.material.fake"}), raising=False)
+    monkeypatch.setattr(flet, "__all__", list(getattr(flet, "__all__", [])) + ["FakeDeprecated"])
+    diags = fv.run_static("import flet as ft\nb = ft.FakeDeprecated()")
     assert "deprecated" in codes(diags)
+
+
+def test_static_elevated_button_removed():
+    # In Flet 1.0.0, ElevatedButton was removed from the API.
+    diags = fv.run_static("import flet as ft\nb = ft.ElevatedButton()")
+    assert "unknown-name" in codes(diags)
 
 
 def test_static_undefined_handler():
@@ -87,7 +99,7 @@ async def test_dynamic_passes_clean_code():
         "import flet as ft\n"
         "def main(page):\n"
         "    page.add(ft.Button(content=ft.Text('hi'), on_click=lambda e: None))\n"
-        "ft.app(main)\n"
+        "ft.run(main)\n"
     )
     assert report.status == "passed"
     assert report.controls_verified >= 2
@@ -97,7 +109,7 @@ async def test_dynamic_passes_clean_code():
 @pytest.mark.asyncio
 async def test_dynamic_catches_deferred_validator():
     report = await fv.verify_code(
-        "import flet as ft\ndef main(page):\n    page.add(ft.Slider(min=10, max=5))\nft.app(main)\n"
+        "import flet as ft\ndef main(page):\n    page.add(ft.Slider(min=10, max=5))\nft.run(main)\n"
     )
     assert report.status == "errors"
     runtime = [d for d in report.diagnostics if d.code == "runtime"]
@@ -107,7 +119,7 @@ async def test_dynamic_catches_deferred_validator():
 @pytest.mark.asyncio
 async def test_dynamic_catches_wrong_kwarg_with_line():
     report = await fv.verify_code(
-        "import flet as ft\ndef main(page):\n    page.add(ft.Button(text='hi'))\nft.app(main)\n"
+        "import flet as ft\ndef main(page):\n    page.add(ft.Button(text='hi'))\nft.run(main)\n"
     )
     runtime = [d for d in report.diagnostics if d.code == "runtime"]
     assert any(d.line == 3 and "text" in d.message for d in runtime)
@@ -117,27 +129,32 @@ async def test_dynamic_catches_wrong_kwarg_with_line():
 @pytest.mark.asyncio
 async def test_dynamic_captures_deprecation_warning():
     report = await fv.verify_code(
-        "import flet as ft\ndef main(page):\n    page.add(ft.ElevatedButton())\nft.app(main)\n"
+        "import flet as ft\n"
+        "def main(page):\n"
+        "    page.add(ft.TextField(border=ft.InputBorder.OUTLINE))\n"
+        "ft.run(main)\n"
     )
     assert "deprecated" in codes(report.diagnostics)
 
 
 @pytest.mark.asyncio
 async def test_deprecation_reported_once():
-    """v1.0.2 regression: one deprecated usage produced THREE 'deprecated'
-    diagnostics (static + flet warning on both __init__ and __post_init__)."""
+    """v1.0.2 regression: one deprecated usage produced duplicate diagnostics."""
     report = await fv.verify_code(
-        "import flet as ft\ndef main(page):\n    page.add(ft.ElevatedButton())\nft.app(main)\n"
+        "import flet as ft\n"
+        "def main(page):\n"
+        "    page.add(ft.TextField(border=ft.InputBorder.OUTLINE))\n"
+        "ft.run(main)\n"
     )
     deprecated = [d for d in report.diagnostics if d.code == "deprecated"]
     assert len(deprecated) == 1, deprecated
 
 
 @pytest.mark.asyncio
-async def test_dynamic_neutralizes_ft_app():
-    # If ft.app were NOT neutralized this would hang until timeout.
+async def test_dynamic_neutralizes_ft_run():
+    # If ft.run were NOT neutralized this would hang until timeout.
     report = await fv.verify_code(
-        "import flet as ft\ndef main(page):\n    page.add(ft.Text('hi'))\nft.app(main)\n"
+        "import flet as ft\ndef main(page):\n    page.add(ft.Text('hi'))\nft.run(main)\n"
     )
     assert report.status == "passed"
 

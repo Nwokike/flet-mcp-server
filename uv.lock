@@ -387,7 +387,7 @@ wheels = [
 
 [[package]]
 name = "flet"
-version = "0.86.5"
+version = "1.0.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "httpx", marker = "sys_platform != 'emscripten'" },
@@ -396,14 +396,14 @@ dependencies = [
     { name = "repath" },
     { name = "typing-extensions", marker = "python_full_version < '3.11'" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/97/91/173edaffb9135f4a0f2b92061b375f553327c38bbe4973a9b9f50b785f4a/flet-0.86.5.tar.gz", hash = "sha256:2ac87c7150686d64b61f0c014ec3415dc74ca3afe8f2fe1e6039c0a164738f90", size = 543099, upload-time = "2026-08-01T16:51:26.067Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/36/5d/bd3f4b41f7aa16d7e6802a28a2b31878a94c3e91c67d866b02c7f94b702d/flet-1.0.0.tar.gz", hash = "sha256:7d867d4832b03b380864d751dfec6a43ec8391b3db9f7f9d0ab93219a6ce2281", size = 560856, upload-time = "2026-09-14T23:00:41.599Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/20/c4/ae44a4b7f70c5010fda86634f15d32e4a57ad19a5663aadd6cc89b419fcb/flet-0.86.5-py3-none-any.whl", hash = "sha256:b0accfe78243611ab71c3a6adb0045a80f81a284d0cf037e38c7825c2fd45282", size = 622504, upload-time = "2026-08-01T16:51:24.563Z" },
+    { url = "https://files.pythonhosted.org/packages/b7/6a/80aee6450ec44d11fbfcdd2b539bfcf6516442e561cb82dc0af0c1543c5e/flet-1.0.0-py3-none-any.whl", hash = "sha256:7e61fffc7f2ee70de1d0729ee39177b838897f10258fb92d534e4a0ef8564f48", size = 631615, upload-time = "2026-09-14T23:00:39.906Z" },
 ]
 
 [[package]]
 name = "flet-mcp-server"
-version = "1.0.2"
+version = "1.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "diskcache" },
@@ -431,7 +431,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "diskcache", specifier = ">=5.6.3" },
-    { name = "flet", specifier = ">=0.86.0" },
+    { name = "flet", specifier = ">=1.0.0" },
     { name = "httpx", specifier = ">=0.28.1" },
     { name = "mcp", specifier = ">=2.0.0" },
     { name = "pytest", marker = "extra == 'test'", specifier = ">=9.0.3" },

@@ -111,7 +111,7 @@ async def verify_flet_code(code: str, timeout_secs: int = DEFAULT_TIMEOUT_SECS) 
 
     Args:
         code: Complete, runnable Flet app code (a main(page) function plus
-              ft.app(main) is ideal — main is invoked against a mock page).
+              ft.run(main) is ideal — main is invoked against a mock page).
         timeout_secs: Execution timeout for the sandbox (default 15, max 60).
     """
     timeout_secs = max(1, min(int(timeout_secs), 60))

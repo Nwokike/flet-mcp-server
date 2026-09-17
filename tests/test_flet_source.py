@@ -54,8 +54,8 @@ def test_local_mode_rejects_venv_without_flet(monkeypatch, tmp_path):
 
 
 def test_read_source_whole_file_numbered():
-    out = fs.read_source("controls/material/elevated_button.py")
-    assert "class ElevatedButton" in out
+    out = fs.read_source("controls/material/button.py")
+    assert "class Button" in out
     assert " 1 | " in out  # numbered lines starting at 1
 
 
@@ -97,9 +97,9 @@ def test_read_source_line_cap():
 
 
 def test_search_source_ranks_definitions_first():
-    results = fs.search_source("ElevatedButton")
-    assert results[0].startswith("controls/material/elevated_button.py:")
-    assert "class ElevatedButton" in results[0]
+    results = fs.search_source("Container")
+    assert results[0].startswith("controls/material/container.py:")
+    assert "class Container" in results[0]
 
 
 def test_search_source_no_matches():
@@ -134,8 +134,14 @@ def test_inspect_control_clean_type_rendering():
     assert "Event[Button]" in table  # readable event handler type
 
 
-def test_inspect_control_surfaces_deprecation():
-    out = fs.inspect_control("ElevatedButton")
+def test_inspect_control_surfaces_deprecation(monkeypatch):
+    fake_source = '@deprecated_class(reason="Use Button instead", version="1.0")\nclass OldButton:\n    pass\n'
+    monkeypatch.setattr(fs, "_class_source", lambda cls: (fake_source, 1))
+    import flet
+    monkeypatch.setattr(flet, "OldButton", type("OldButton", (), {"__module__": "flet.controls.material.old"}), raising=False)
+    monkeypatch.setattr(flet, "__all__", list(getattr(flet, "__all__", [])) + ["OldButton"])
+
+    out = fs.inspect_control("OldButton")
     assert "DEPRECATED" in out
     assert "Use Button instead" in out
 
@@ -151,7 +157,7 @@ def test_inspect_control_unknown_name():
 
 
 def test_inspect_control_non_class_redirects():
-    out = fs.inspect_control("app")
+    out = fs.inspect_control("run")
     assert "not a class" in out
 
 

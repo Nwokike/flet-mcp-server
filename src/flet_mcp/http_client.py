@@ -5,7 +5,7 @@ import httpx
 
 from flet_mcp.exceptions import RateLimitedError
 
-SERVER_VERSION = "1.0.0"
+SERVER_VERSION = "1.1.0"
 
 _GITHUB_HOSTS = {"api.github.com", "raw.githubusercontent.com", "github.com"}
 

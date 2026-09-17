@@ -1,6 +1,6 @@
 [project]
 name = "flet-mcp-server"
-version = "1.0.2"
+version = "1.1.0"
 description = "MCP server that makes the installed Flet source code the source of truth for AI agents"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -23,7 +23,7 @@ classifiers = [
 
 dependencies = [
     "diskcache>=5.6.3",
-    "flet>=0.86.0",
+    "flet>=1.0.0",
     "httpx>=0.28.1",
     "mcp>=2.0.0",
 ]
