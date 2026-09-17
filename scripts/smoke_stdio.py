@@ -41,9 +41,10 @@ REQUIRED_PROMPTS = {"verify_flet_code_prompt", "migrate_flet_prompt", "build_fle
 BROKEN_CODE = """import flet as ft
 
 def main(page):
-    page.add(ft.ElevatedButton(text="hi"), ft.Slider(min=10, max=5))
+    b = ft.InputBorder.OUTLINE
+    page.add(ft.Button(text="hi"), ft.Slider(min=10, max=5))
 
-ft.app(main)
+ft.run(main)
 """
 
 GOOD_CODE = """import flet as ft
@@ -51,7 +52,7 @@ GOOD_CODE = """import flet as ft
 def main(page):
     page.add(ft.Button(content=ft.Text("hi"), on_click=lambda e: None))
 
-ft.app(main)
+ft.run(main)
 """
 
 
