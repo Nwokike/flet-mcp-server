@@ -58,8 +58,8 @@ class FletPackageFetcher:
         Returns None only for a genuine 404 (callers treat it as "not found");
         network failures and error statuses raise FetchError.
         """
-        if url in cache:
-            return cache[url]
+        if (cached := cache.get(url)) is not None:
+            return cached
 
         try:
             response = await self.client.get(url, headers=headers or self._github_headers)

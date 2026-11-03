@@ -161,8 +161,8 @@ class FletDocsFetcher:
 
     async def _fetch_json(self, url: str) -> dict | list | None:
         """Helper to fetch and cache JSON responses (24-hour TTL)."""
-        if url in cache:
-            return cache[url]
+        if (cached := cache.get(url)) is not None:
+            return cached
 
         try:
             response = await self.client.get(url, headers=self._headers)
@@ -179,8 +179,8 @@ class FletDocsFetcher:
 
     async def _fetch_text(self, url: str) -> str | None:
         """Helper to fetch and cache raw Markdown text (24-hour TTL), authenticated."""
-        if url in cache:
-            return cache[url]
+        if (cached := cache.get(url)) is not None:
+            return cached
 
         try:
             response = await self.client.get(url, headers=SharedClient.auth_headers())

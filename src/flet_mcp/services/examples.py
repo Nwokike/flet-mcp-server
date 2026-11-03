@@ -36,8 +36,8 @@ class FletExamplesFetcher:
         return self._client
 
     async def _fetch_text(self, url: str) -> str | None:
-        if url in cache:
-            return cache[url]
+        if (cached := cache.get(url)) is not None:
+            return cached
         try:
             response = await self.client.get(url, headers=SharedClient.auth_headers())
         except httpx.RequestError as exc:
@@ -55,8 +55,8 @@ class FletExamplesFetcher:
             f"https://api.github.com/repos/{config.FLET_REPO}/git/trees/"
             f"{quote(f'{config.FLET_BRANCH}:{EXAMPLES_SUBTREE}', safe='')}?recursive=1"
         )
-        if url in cache:
-            return cache[url]
+        if (cached := cache.get(url)) is not None:
+            return cached
 
         try:
             response = await self.client.get(url, headers=self._headers)
