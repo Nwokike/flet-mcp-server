@@ -2,7 +2,7 @@
 
 import tempfile
 
-import diskcache
+import diskcache_community
 import pytest
 from unittest.mock import AsyncMock, MagicMock
 
@@ -17,7 +17,7 @@ from flet_mcp.exceptions import FetchError, SourceError
 def isolated_cache():
     with tempfile.TemporaryDirectory() as tmpdir:
         old = examples.cache
-        examples.cache = diskcache.Cache(tmpdir)
+        examples.cache = diskcache_community.Cache(tmpdir)
         yield
         examples.cache = old
 
